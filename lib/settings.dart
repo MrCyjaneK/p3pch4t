@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:i2p_flutter/i2p_manager_page.dart';
 import 'package:i2p_flutter/widgets/serviceslist.dart';
 import 'package:i2p_flutter/widgets/statuswidget.dart';
+import 'package:p3pch4t/backuppage.dart';
 import 'package:p3pch4t/classes/ssmdc.v1/groupconfig.dart';
 import 'package:p3pch4t/classes/user.dart';
 import 'package:p3pch4t/creategrouppage.dart';
@@ -112,6 +113,22 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   icon: const Icon(Icons.create),
                   label: const Text("Create group server (SSMDC.v1)"),
+                ),
+              ),
+              SizedBox(
+                width: double.maxFinite,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return const BackupPage();
+                        },
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.backup),
+                  label: const Text("Backup"),
                 ),
               )
             ],

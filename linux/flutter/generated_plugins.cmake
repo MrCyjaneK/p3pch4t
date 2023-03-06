@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   i2p_flutter
   objectbox_flutter_libs
   openpgp
+  url_launcher_linux
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

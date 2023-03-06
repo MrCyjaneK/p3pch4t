@@ -6,6 +6,7 @@ import 'package:i2p_flutter/i2p_flutter.dart';
 import 'package:p3pch4t/helpers/pgp.dart';
 import 'package:p3pch4t/prefs.dart';
 import 'package:p3pch4t/helpers/consts.dart' as c;
+import 'package:p3pch4t/restorepage.dart';
 
 class GenPGPPage extends StatefulWidget {
   const GenPGPPage({Key? key}) : super(key: key);
@@ -26,6 +27,19 @@ class _GenPGPPageState extends State<GenPGPPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Generate PGP"),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const RestorePage();
+                    },
+                  ),
+                );
+              },
+              icon: const Icon(Icons.restore))
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(

@@ -149,6 +149,7 @@ Future<Response> ssmdcv1HandleTextV1(
     "connstring": u.connstring,
     "connmethod": u.connmethod,
   };
+  req["body"]["body"]["nonce"] = "${req["body"]["body"]["nonce"]};${u.id}";
   final Event evt = Event(
     jsonBody: jsonEncode(req["body"]["body"]),
     privKey: group.groupPrivatePgp,
@@ -196,6 +197,7 @@ Future<Response> ssmdcv1HandleEvent(
     "connstring": u.connstring,
     "connmethod": u.connmethod,
   };
+  req["body"]["body"]["nonce"] = "${req["body"]["body"]["nonce"]};${u.id}";
   final Event evt = Event(
     jsonBody: jsonEncode(req["body"]["body"]),
     privKey: group.groupPrivatePgp,
