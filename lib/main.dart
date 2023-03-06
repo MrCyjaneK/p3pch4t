@@ -213,12 +213,15 @@ Future<List<int>> doEventTasks() async {
           (createHourDiff >= 13 && minuteDiff >= 5) ||
           (createHourDiff >= 49 && minuteDiff >= 10) ||
           (createHourDiff >= 169 && minuteDiff >= 20)) {
+        print("a");
+        print(connstringSkipList);
         statProcessed++;
-        event.trySend(connstringSkipList);
+        if (!(await event.trySend(connstringSkipList))) {
+          for (var elm in event.destinations) {
+            connstringSkipList.add(elm.connstring);
+          }
+        }
       }
-    }
-    for (var elm in event.destinations) {
-      connstringSkipList.add(elm.connstring);
     }
   }
   return [statTotal, statProcessed, statRemoved];

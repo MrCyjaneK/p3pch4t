@@ -58,7 +58,7 @@ class Event {
     };
   }
 
-  Future<void> trySend(List<String> connstringSkipList) async {
+  Future<bool> trySend(List<String> connstringSkipList) async {
     lastRelayed = DateTime.now();
     eventBox.put(this);
     List<int> toDel = [];
@@ -76,6 +76,7 @@ class Event {
       isRelayed = true;
       eventBox.put(this);
     }
+    return isRelayed;
   }
 
   Stream<String> send(List<String> connstringSkipList) async* {
