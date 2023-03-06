@@ -158,7 +158,7 @@ Future<void> downloadParts() async {
     final items = downloadItemBox.getAll();
     for (var di in items) {
       if (di.isDownloaded) continue;
-      await di.downloadPart(1024 * 1024 * 2);
+      await di.downloadPart(1024 * 1024 * 5);
     }
     isDownloadInProgress = false;
   } catch (e) {
@@ -180,7 +180,7 @@ Future<List<int>> doEventTasks() async {
   int statRemoved = 0;
   int statProcessed = 0;
   await downloadParts();
-
+  List<String> connstringSkipList = [];
   for (var event in events) {
     if (event.destinations.isEmpty) {
       eventBox.remove(event.id);
@@ -188,7 +188,7 @@ Future<List<int>> doEventTasks() async {
     }
     if (event.relayTries == 0) {
       // It looks like theevent just got queued, retry sending just in case.
-      await event.trySend();
+      await event.trySend(connstringSkipList);
     } else {
       //    We were unable to send the event for a long amount of time (3 tries)
       // So we will try to send it:
@@ -203,6 +203,7 @@ Future<List<int>> doEventTasks() async {
       // events.
       // Events will never get canceled. And all should get delivered once
       // destination becomes online.
+      //
       int createHourDiff =
           event.lastRelayed.difference(event.creationDate).inHours;
       int minuteDiff = DateTime.now().difference(event.lastRelayed).inMinutes;
@@ -212,10 +213,12 @@ Future<List<int>> doEventTasks() async {
           (createHourDiff >= 13 && minuteDiff >= 5) ||
           (createHourDiff >= 49 && minuteDiff >= 10) ||
           (createHourDiff >= 169 && minuteDiff >= 20)) {
-        // print("(doEventTasks): event.trySend();");
         statProcessed++;
-        event.trySend();
+        event.trySend(connstringSkipList);
       }
+    }
+    for (var elm in event.destinations) {
+      connstringSkipList.add(elm.connstring);
     }
   }
   return [statTotal, statProcessed, statRemoved];

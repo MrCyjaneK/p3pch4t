@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:p3pch4t/add_contact.dart';
@@ -9,6 +8,7 @@ import 'package:p3pch4t/chatscreen.dart';
 import 'package:p3pch4t/classes/message.dart';
 import 'package:p3pch4t/classes/user.dart';
 import 'package:p3pch4t/creategrouppage.dart';
+import 'package:p3pch4t/eventqueuepage.dart';
 import 'package:p3pch4t/groupslistpage.dart';
 import 'package:p3pch4t/objectbox.g.dart';
 import 'package:p3pch4t/pgpgenpage.dart';
@@ -191,6 +191,10 @@ class _AppDrawerState extends State<AppDrawer> {
                   context, Icons.group, "Manage groups", GroupListPage()),
             _drawerButton(
                 context, Icons.settings, "Settings", const SettingsPage()),
+            if (prefs.getBool("devmode") == true) const Divider(),
+            if (prefs.getBool("devmode") == true)
+              _drawerButton(context, Icons.developer_board, "Event queue",
+                  const EventQueuePage()),
           ],
         ),
       ),
@@ -201,7 +205,7 @@ class _AppDrawerState extends State<AppDrawer> {
     final s =
         'p3p p3P p3q p39 pep peP peq pe9 P3p P3P P3q P39 Pep PeP Peq Pe9 q3p q3P q3q q39 qep qeP qeq qe9 93p 93P 93q 939 9ep 9eP 9eq 9e9'
             .split(" ");
-    s.shuffle(Random(DateTime.now().millisecondsSinceEpoch));
+    s.shuffle();
     return s[0];
   }
 

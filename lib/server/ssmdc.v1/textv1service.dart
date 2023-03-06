@@ -32,6 +32,7 @@ const statsText = r"""
 | Messages | `$messageCount` |
 | Users    | `$usersCount` |
 | Pending Events | `$pendingEventsCount` |
+| Current missed relays | `$pendingEventTries` |
 """;
 
 const userText = r"""# $groupname members
@@ -103,6 +104,10 @@ Future<String> ssmdcv1StringParse(
   if (s.contains(r'$pendingEventsCount')) {
     s = s.replaceAll(
         r'$pendingEventsCount', group.getPendingEvents().toString());
+  }
+  if (s.contains(r'$pendingEventTries')) {
+    s = s.replaceAll(
+        r'$pendingEventTries', group.getPendingEventsTries().toString());
   }
   if (s.contains(r'$uBio')) s = s.replaceAll(r'$uBio', u.bio);
   if (s.contains(r'$uConnstring')) {

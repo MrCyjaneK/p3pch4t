@@ -170,6 +170,16 @@ class SSMDCv1GroupConfig {
     return groupEvents.length;
   }
 
+  int getPendingEventsTries() {
+    List<Event> groupEvents =
+        eventBox.query(Event_.privKey.equals(groupPrivatePgp)).build().find();
+    int toret = 0;
+    for (var element in groupEvents) {
+      toret += element.relayTries;
+    }
+    return toret;
+  }
+
   Future<String> groupPublicKey() async {
     return await pgp.OpenPGP.convertPrivateKeyToPublicKey(groupPrivatePgp);
   }

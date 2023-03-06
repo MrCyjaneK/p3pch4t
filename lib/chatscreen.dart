@@ -210,7 +210,7 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
                                 );
                                 final evt = await Event.newFileMessage(fevt, u);
                                 u.queueSendEvent(evt);
-                                evt.trySend();
+                                evt.trySend([]);
                                 fevt.msgId = messageBox.put(
                                   Message(
                                     eventUid: evt.uid,
@@ -233,7 +233,7 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
                             onPressed: () async {
                               final evt = Event.newTextMessage(msgCtrl.text);
                               evt.id = u.queueSendEvent(evt);
-                              evt.trySend();
+                              evt.trySend([]);
                               messageBox.put(
                                 Message(
                                   eventUid: evt.uid,

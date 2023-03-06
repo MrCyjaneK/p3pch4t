@@ -59,7 +59,7 @@ toJson(): ${encoder.convert(eJsonBody).replaceAll(r"\n", "\n")}
                 width: double.maxFinite,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    widget.e.trySend();
+                    widget.e.trySend([]);
                   },
                   icon: const Icon(Icons.send),
                   label: const Text("Send event"),

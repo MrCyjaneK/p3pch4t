@@ -58,11 +58,11 @@ class Event {
     };
   }
 
-  Future<void> trySend() async {
+  Future<void> trySend(List<String> connstringSkipList) async {
     lastRelayed = DateTime.now();
     eventBox.put(this);
     List<int> toDel = [];
-    await send().forEach((element) {
+    await send(connstringSkipList).forEach((element) {
       if (element.startsWith("ok,")) {
         toDel.add(int.parse(element.replaceAll("ok,", "")));
       }
@@ -78,8 +78,9 @@ class Event {
     }
   }
 
-  Stream<String> send() async* {
+  Stream<String> send(List<String> connstringSkipList) async* {
     for (var dest in destinations) {
+      if (connstringSkipList.contains(dest.connstring)) continue;
       if (dest.connmethod == "i2p") {
         yield await dest.sendEvent(this);
       } else {
