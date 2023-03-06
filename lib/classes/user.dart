@@ -85,6 +85,8 @@ class User {
     // return "Sent but not delivered";
   }
 
+  String? chatBackgroundAsset;
+
   Future<void> introduce() async {
     final introduceEvent = await Event.newIntroduction(this);
     queueSendEvent(introduceEvent);

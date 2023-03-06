@@ -4,9 +4,11 @@ import 'package:p3pch4t/classes/ssmdc.v1/groupconfig.dart';
 import 'package:p3pch4t/classes/user.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:p3pch4t/helpers/themes.dart';
 import 'package:p3pch4t/objectbox.g.dart';
 import 'package:p3pch4t/prefs.dart';
-import 'package:p3pch4t/widgets/userqr.dart';
+import 'package:p3pch4t/widgets/qr.dart';
+import 'package:select_dialog/select_dialog.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -46,7 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                   child: SelectableText(
-                    widget.u.connstring,
+                    "${widget.u.connmethod}://${widget.u.connstring}",
                     style: Theme.of(context)
                         .textTheme
                         .displaySmall
@@ -112,26 +114,44 @@ class _ProfilePageState extends State<ProfilePage> {
                   label: const Text("Delete chat"),
                 ),
               ),
-              ListTile(
-                title: const Text('Change background color'),
-                subtitle: Text(
-                  '${ColorTools.materialName(backgroundColor!)} '
-                  'aka ${ColorTools.nameThatColor(backgroundColor!)}',
-                ),
-                trailing: ColorIndicator(
-                  width: 44,
-                  height: 44,
-                  borderRadius: 4,
-                  color: backgroundColor!,
-                  onSelectFocus: false,
-                  onSelect: () async {
-                    showColorPickerDialog(context, backgroundColor!)
-                        .then((value) {
-                      setState(() {
-                        backgroundColor = value;
-                      });
-                    });
+              _changeBackgroundColor(),
+              SizedBox(
+                width: double.maxFinite,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(foregroundColor: Colors.blue),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return changeThemeAlert(
+                          u: widget.u,
+                        );
+                      },
+                    );
                   },
+                  icon: const Icon(Icons.backpack),
+                  label: Text(widget.u.chatBackgroundAsset == null
+                      ? "Set theme"
+                      : "Change theme"),
+                ),
+              ),
+              SizedBox(
+                width: double.maxFinite,
+                child: OutlinedButton.icon(
+                  style:
+                      OutlinedButton.styleFrom(foregroundColor: Colors.green),
+                  onPressed: () {
+                    // userBox.remove(widget.u.id);
+                    setState(() {
+                      widget.u.rawBackgroundColor = backgroundColor?.value;
+                    });
+                    userBox.put(widget.u);
+                    Navigator.of(context)
+                      ..pop()
+                      ..pop();
+                  },
+                  icon: const Icon(Icons.save),
+                  label: const Text("Save theme"),
                 ),
               ),
               if (widget.group != null)
@@ -139,6 +159,102 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 160),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  ListTile _changeBackgroundColor() {
+    return ListTile(
+      title: const Text('Change background color'),
+      subtitle: Text(
+        '${ColorTools.materialName(backgroundColor!)} '
+        'aka ${ColorTools.nameThatColor(backgroundColor!)}',
+      ),
+      trailing: ColorIndicator(
+        width: 44,
+        height: 44,
+        borderRadius: 4,
+        color: backgroundColor!,
+        onSelectFocus: false,
+        onSelect: () async {
+          showColorPickerDialog(context, backgroundColor!).then((value) {
+            setState(() {
+              backgroundColor = value;
+            });
+          });
+        },
+      ),
+    );
+  }
+}
+
+class changeThemeAlert extends StatefulWidget {
+  const changeThemeAlert({
+    super.key,
+    required this.u,
+  });
+
+  final User u;
+  @override
+  State<changeThemeAlert> createState() => _changeThemeAlertState();
+}
+
+class _changeThemeAlertState extends State<changeThemeAlert> {
+  late String? selection = widget.u.chatBackgroundAsset;
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Change title"),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 355,
+        child: Column(
+          children: [
+            SizedBox(
+              width: double.maxFinite,
+              height: 256,
+              child: Image.asset(
+                getChatBackgroundAsset(selection),
+                scale: 2,
+                repeat: ImageRepeat.repeat,
+              ),
+            ),
+            SizedBox(
+              width: double.maxFinite,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  SelectDialog.showModal<String>(
+                    context,
+                    label: "Change theme",
+                    selectedValue: selection,
+                    items: chatBackgrounds,
+                    onChange: (String selected) {
+                      setState(() {
+                        selection = selected;
+                      });
+                    },
+                  );
+                },
+                icon: const Icon(Icons.change_circle),
+                label: const Text("Change theme"),
+              ),
+            ),
+            SizedBox(
+              width: double.maxFinite,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    widget.u.chatBackgroundAsset = selection;
+                  });
+                  userBox.put(widget.u);
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.save),
+                label: const Text("Save theme"),
+              ),
+            )
+          ],
         ),
       ),
     );

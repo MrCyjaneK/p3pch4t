@@ -80,7 +80,7 @@
     },
     {
       "id": "3:7095741913934992263",
-      "lastPropertyId": "10:7652112271072960248",
+      "lastPropertyId": "11:239423355938187578",
       "name": "User",
       "properties": [
         {
@@ -133,6 +133,11 @@
           "id": "10:7652112271072960248",
           "name": "rawBackgroundColor",
           "type": 6
+        },
+        {
+          "id": "11:239423355938187578",
+          "name": "chatBackgroundAsset",
+          "type": 9
         }
       ],
       "relations": []
@@ -325,7 +330,7 @@
     },
     {
       "id": "8:2493862363624131741",
-      "lastPropertyId": "17:8744914044134854354",
+      "lastPropertyId": "18:3077040347030341764",
       "name": "SSMDCv1GroupConfig",
       "properties": [
         {
@@ -412,6 +417,11 @@
         {
           "id": "17:8744914044134854354",
           "name": "rawAdminList",
+          "type": 9
+        },
+        {
+          "id": "18:3077040347030341764",
+          "name": "chatBackgroundAsset",
           "type": 9
         }
       ],

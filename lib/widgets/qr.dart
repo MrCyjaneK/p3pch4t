@@ -9,9 +9,20 @@ class UserQrWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return GenericQrWidget(text: "${u.connmethod}://${u.connstring}");
+  }
+}
+
+class GenericQrWidget extends StatelessWidget {
+  const GenericQrWidget({Key? key, required this.text}) : super(key: key);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
     return PrettyQr(
       size: 256,
-      data: "${u.connmethod}://${u.connstring}",
+      data: text,
       errorCorrectLevel: QrErrorCorrectLevel.Q,
       roundEdges: true,
     );

@@ -51,7 +51,9 @@ Future<Response> handleTextV1(Map<String, dynamic> req) async {
     msg.originName = req["body"]["body"]["origin"]["name"];
     msg.originConnmethod = req["body"]["body"]["origin"]["connmethod"];
     msg.originConnstring = req["body"]["body"]["origin"]["connstring"];
-  } catch (e) {}
+  } catch (e) {
+    print(e);
+  }
   msg.id = messageBox.put(msg);
   notify(msg.id, u.name, utf8.decode(msg.data));
   return json({"ok": true});

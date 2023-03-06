@@ -48,6 +48,8 @@ class SSMDCv1GroupConfig {
 
   int? rawBackgroundColor;
 
+  String? chatBackgroundAsset;
+
   @Transient()
   Color? get backgroundColor {
     if (rawBackgroundColor == null) return null;

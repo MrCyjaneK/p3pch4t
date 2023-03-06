@@ -61,6 +61,7 @@ Future<Response> ssmdcv1HandleIntroductionV1(
   u.bio = req["body"]["body"]["data"]["bio"];
   u.publicKey = req["body"]["body"]["data"]["senderpgp"];
   u.rawBackgroundColor = req["body"]["body"]["data"]["backgroundColor"];
+  u.chatBackgroundAsset = req["body"]["body"]["data"]["backgroundAsset"];
   u.id = userBox.put(u);
 
   if (group.isUserBanned(u)) {
@@ -73,7 +74,7 @@ Future<Response> ssmdcv1HandleIntroductionV1(
   }
   ssmdcv1AddUser(group, u, req);
   final evt = await Event.newSsmdcv1Introduction(u, group);
-  evt.id = await u.queueSendEvent(evt);
+  evt.id = u.queueSendEvent(evt);
   u.sendEvent(evt);
   return json({
     "ok": true,

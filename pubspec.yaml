@@ -40,6 +40,8 @@ dependencies:
   flutter_zxing: ^1.1.0
   mobile_scanner: ^3.0.0
   flex_color_picker: ^3.1.0
+  flutter_svg: ^2.0.2
+  select_dialog: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -53,6 +55,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/backgrounds/
     - assets/images/help/
     - packages/openpgp/web/assets/worker.js
     - packages/openpgp/web/assets/wasm_exec.js

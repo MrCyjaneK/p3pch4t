@@ -6,7 +6,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:p3pch4t/classes/user.dart';
 import 'package:p3pch4t/objectbox.g.dart';
 import 'package:p3pch4t/prefs.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
+import 'package:p3pch4t/widgets/qr.dart';
 
 class AddContact extends StatefulWidget {
   const AddContact({Key? key}) : super(key: key);
@@ -29,7 +29,7 @@ class _AddContactState extends State<AddContact> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add c0n7act"),
+        title: const Text("Add contact"),
       ),
       body: isScanning
           ? SizedBox(
@@ -77,12 +77,7 @@ class _AddContactState extends State<AddContact> {
                         ),
                       ),
                     ),
-                    PrettyQr(
-                      size: 256,
-                      data: "${prefs.getString('connstring')}",
-                      errorCorrectLevel: QrErrorCorrectLevel.Q,
-                      roundEdges: true,
-                    ),
+                    GenericQrWidget(text: "${prefs.getString('connstring')}"),
                     if (Platform.isAndroid && !isScanning)
                       SizedBox(
                         width: double.maxFinite,

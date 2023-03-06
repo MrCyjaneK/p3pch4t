@@ -143,6 +143,7 @@ class Event {
           "username": group.name,
           "bio": group.about,
           "backgroundColor": group.rawBackgroundColor,
+          "backgroundAsset": group.chatBackgroundAsset,
         },
       }),
     );
@@ -166,6 +167,7 @@ class Event {
           "username": prefs.getString("username"),
           "bio": prefs.getString("bio"),
           "backgroundColor": u.rawBackgroundColor,
+          "backgroundAsset": u.backgroundColor,
         },
       }),
     );

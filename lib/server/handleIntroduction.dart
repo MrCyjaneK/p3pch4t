@@ -21,6 +21,7 @@ Future<Response> handleIntroductionV1(Map<String, dynamic> req) async {
   u.bio = req["body"]["body"]["data"]["bio"];
   u.publicKey = req["body"]["body"]["data"]["senderpgp"];
   u.rawBackgroundColor = req["body"]["body"]["data"]["backgroundColor"];
+  u.chatBackgroundAsset = req["body"]["body"]["data"]["backgroundAsset"];
   userBox.put(u);
   return json({
     "ok": true,

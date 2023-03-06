@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:openpgp/openpgp.dart';
 import 'package:p3pch4t/classes/event.dart';
 import 'package:p3pch4t/classes/ssmdc.v1/groupconfig.dart';
+import 'package:p3pch4t/helpers/themes.dart';
 import 'package:p3pch4t/prefs.dart';
 import 'package:p3pch4t/profilepage.dart';
-import 'package:pretty_qr_code/pretty_qr_code.dart';
+import 'package:p3pch4t/widgets/qr.dart';
+import 'package:select_dialog/select_dialog.dart';
 
 class ManageGroupPage extends StatefulWidget {
   const ManageGroupPage({Key? key, required this.group}) : super(key: key);
@@ -96,12 +98,7 @@ class _ManageGroupPageState extends State<ManageGroupPage> {
                   ),
                 ),
               ),
-              PrettyQr(
-                size: 256,
-                data: widget.group.getGroupConnstring(),
-                errorCorrectLevel: QrErrorCorrectLevel.Q,
-                roundEdges: true,
-              ),
+              GenericQrWidget(text: widget.group.getGroupConnstring()),
               const Divider(),
               const Text("Users"),
               ListView.builder(
@@ -229,26 +226,25 @@ class _ManageGroupPageState extends State<ManageGroupPage> {
                   labelText: 'Group about',
                 ),
               ),
-              ListTile(
-                title: const Text('Change background color'),
-                subtitle: Text(
-                  '${ColorTools.materialName(backgroundColor!)} '
-                  'aka ${ColorTools.nameThatColor(backgroundColor!)}',
-                ),
-                trailing: ColorIndicator(
-                  width: 44,
-                  height: 44,
-                  borderRadius: 4,
-                  color: backgroundColor!,
-                  onSelectFocus: false,
-                  onSelect: () async {
-                    showColorPickerDialog(context, backgroundColor!)
-                        .then((value) {
-                      setState(() {
-                        backgroundColor = value;
-                      });
-                    });
+              _backgroundColorChange(),
+              SizedBox(
+                width: double.maxFinite,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(foregroundColor: Colors.blue),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return changeThemeAlert(
+                          group: group,
+                        );
+                      },
+                    );
                   },
+                  icon: const Icon(Icons.backpack),
+                  label: Text(widget.group.chatBackgroundAsset == null
+                      ? "Set theme"
+                      : "Change theme"),
                 ),
               ),
               SizedBox(
@@ -272,7 +268,7 @@ class _ManageGroupPageState extends State<ManageGroupPage> {
                         intU,
                         group,
                       );
-                      evt.id = await intU.queueSendEvent(evt);
+                      evt.id = intU.queueSendEvent(evt);
                       intU.sendEvent(evt);
                     }
                   },
@@ -293,6 +289,102 @@ class _ManageGroupPageState extends State<ManageGroupPage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  ListTile _backgroundColorChange() {
+    return ListTile(
+      title: const Text('Change background color'),
+      subtitle: Text(
+        '${ColorTools.materialName(backgroundColor!)} '
+        'aka ${ColorTools.nameThatColor(backgroundColor!)}',
+      ),
+      trailing: ColorIndicator(
+        width: 44,
+        height: 44,
+        borderRadius: 4,
+        color: backgroundColor!,
+        onSelectFocus: false,
+        onSelect: () async {
+          showColorPickerDialog(context, backgroundColor!).then((value) {
+            setState(() {
+              backgroundColor = value;
+            });
+          });
+        },
+      ),
+    );
+  }
+}
+
+class changeThemeAlert extends StatefulWidget {
+  const changeThemeAlert({
+    super.key,
+    required this.group,
+  });
+
+  final SSMDCv1GroupConfig group;
+  @override
+  State<changeThemeAlert> createState() => _changeThemeAlertState();
+}
+
+class _changeThemeAlertState extends State<changeThemeAlert> {
+  late String? selection = widget.group.chatBackgroundAsset;
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Change title"),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 355,
+        child: Column(
+          children: [
+            SizedBox(
+              width: double.maxFinite,
+              height: 256,
+              child: Image.asset(
+                getChatBackgroundAsset(selection),
+                scale: 2,
+                repeat: ImageRepeat.repeat,
+              ),
+            ),
+            SizedBox(
+              width: double.maxFinite,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  SelectDialog.showModal<String>(
+                    context,
+                    label: "Change theme",
+                    selectedValue: selection,
+                    items: chatBackgrounds,
+                    onChange: (String selected) {
+                      setState(() {
+                        selection = selected;
+                      });
+                    },
+                  );
+                },
+                icon: const Icon(Icons.change_circle),
+                label: const Text("Change theme"),
+              ),
+            ),
+            SizedBox(
+              width: double.maxFinite,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    widget.group.chatBackgroundAsset = selection;
+                  });
+                  ssmdcv1GroupConfigBox.put(widget.group);
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.save),
+                label: const Text("Save theme"),
+              ),
+            )
+          ],
         ),
       ),
     );

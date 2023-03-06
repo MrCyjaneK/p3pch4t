@@ -12,6 +12,7 @@ import 'package:p3pch4t/classes/event.dart';
 import 'package:p3pch4t/classes/fileevt.dart';
 import 'package:p3pch4t/classes/message.dart';
 import 'package:p3pch4t/classes/user.dart';
+import 'package:p3pch4t/helpers/themes.dart';
 import 'package:p3pch4t/objectbox.g.dart';
 import 'package:p3pch4t/prefs.dart';
 import 'package:file_picker/file_picker.dart';
@@ -92,8 +93,9 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: u.backgroundColor,
+      // backgroundColor: u.backgroundColor,
       appBar: AppBar(
+        backgroundColor: u.backgroundColor,
         title: Text(widget.u.name),
         actions: [
           IconButton(
@@ -110,155 +112,162 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                reverse: true,
-                controller: scrollCtrl,
-                shrinkWrap: true,
-                itemCount: msgs.length,
-                itemBuilder: (context, index) {
-                  Message msg = msgs[index];
-                  Event? evt;
-                  if (msg.eventUid != null) {
-                    evt = eventBox
-                        .query(Event_.uid.equals(msg.eventUid!))
-                        .build()
-                        .findFirst();
-                  }
-                  String append = "";
-                  if (evt != null) {
-                    if (evt.relayTries > 5) {
-                      append =
-                          "\nWe have tried to deliver this message ${evt.relayTries} times and still were unable to do so. Probably the contact is offline, we will continue trying.";
-                    } else {
-                      append = "\nSending...";
-                    }
-                  }
-                  switch (msg.type) {
-                    case "file.v1":
-                      return _fileV1Tile(msg, evt, append);
-                    case "text.v1":
-                    default:
-                      return _textV1Tile(msg, evt, append);
-                  }
-                },
-              ),
+      body: Stack(
+        children: [
+          SizedBox(
+            width: double.maxFinite,
+            height: double.maxFinite,
+            child: Image.asset(
+              getChatBackgroundAsset(u.chatBackgroundAsset),
+              scale: 2, // scale for nicer view
+              repeat: ImageRepeat.repeat,
+              color: u.backgroundColor,
             ),
-            if (u.publicKey == null)
-              Container(
-                decoration: const BoxDecoration(color: Colors.red),
-                child: const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    "No PGP found! The contact is not yet added, once the contact become online you will be able to queue new messages",
+          ),
+          //SvgPicture.asset("assets/backgrounds/jigsaw.svg"),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    reverse: true,
+                    controller: scrollCtrl,
+                    shrinkWrap: true,
+                    itemCount: msgs.length,
+                    itemBuilder: (context, index) {
+                      Message msg = msgs[index];
+                      Event? evt;
+                      if (msg.eventUid != null) {
+                        evt = eventBox
+                            .query(Event_.uid.equals(msg.eventUid!))
+                            .build()
+                            .findFirst();
+                      }
+                      String append = "";
+                      if (evt != null) {
+                        if (evt.relayTries > 5) {
+                          append =
+                              "\nWe have tried to deliver this message ${evt.relayTries} times and still were unable to do so. Probably the contact is offline, we will continue trying.";
+                        } else {
+                          append = "\nSending...";
+                        }
+                      }
+                      switch (msg.type) {
+                        case "file.v1":
+                          return _fileV1Tile(msg, evt, append);
+                        case "text.v1":
+                        default:
+                          return _textV1Tile(msg, evt, append);
+                      }
+                    },
                   ),
                 ),
-              )
-            else
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: msgCtrl,
-                      minLines: 1,
-                      maxLines: 4,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Message',
+                if (u.publicKey == null)
+                  Container(
+                    decoration: const BoxDecoration(color: Colors.red),
+                    child: const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        "No PGP found! The contact is not yet added, once the contact become online you will be able to queue new messages",
                       ),
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(fontFamily: "monospace"),
+                    ),
+                  )
+                else
+                  Card(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: msgCtrl,
+                            minLines: 1,
+                            maxLines: 4,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Message',
+                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(fontFamily: "monospace"),
+                          ),
+                        ),
+                        if (msgCtrl.text.isEmpty)
+                          IconButton(
+                            onPressed: () async {
+                              if (!(await doPlatformFStask())) {
+                                return;
+                              }
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                allowMultiple: true,
+                              );
+                              if (result == null) return;
+                              for (var file in result.files) {
+                                var fevt = await FileEvt.createFromLocal(
+                                  file.path!,
+                                  "File upload",
+                                );
+                                final evt = await Event.newFileMessage(fevt, u);
+                                u.queueSendEvent(evt);
+                                evt.trySend();
+                                fevt.msgId = messageBox.put(
+                                  Message(
+                                    eventUid: evt.uid,
+                                    userId: u.id,
+                                    type: "file.v1",
+                                    isTrusted: true,
+                                    isSelf: true,
+                                    nonce: evt.json["nonce"],
+                                    data:
+                                        utf8.encode(evt.jsonBody) as Uint8List,
+                                  ),
+                                );
+                                fileevtBox.put(fevt);
+                              }
+                            },
+                            icon: const Icon(Icons.attach_file),
+                          ),
+                        if (msgCtrl.text.isNotEmpty)
+                          IconButton(
+                            onPressed: () async {
+                              final evt = Event.newTextMessage(msgCtrl.text);
+                              evt.id = u.queueSendEvent(evt);
+                              evt.trySend();
+                              messageBox.put(
+                                Message(
+                                  eventUid: evt.uid,
+                                  userId: u.id,
+                                  type: "text.v1",
+                                  isTrusted: true,
+                                  isSelf: true,
+                                  nonce: evt.json["nonce"],
+                                  data: base64Decode(evt.json["data"]),
+                                ),
+                              );
+                              msgCtrl.clear();
+                              loadMessages();
+                            },
+                            icon: const Icon(Icons.send),
+                          ),
+                      ],
                     ),
                   ),
-                  if (msgCtrl.text.isEmpty)
-                    IconButton(
+                if (u.publicKey == null)
+                  SizedBox(
+                    width: double.maxFinite,
+                    child: ElevatedButton(
                       onPressed: () async {
-                        if (!(await doPlatformFStask())) {
-                          return;
-                        }
-                        FilePickerResult? result =
-                            await FilePicker.platform.pickFiles(
-                          allowMultiple: true,
-                        );
-                        if (result == null) return;
-                        for (var file in result.files) {
-                          var fevt = await FileEvt.createFromLocal(
-                            file.path!,
-                            "File upload",
-                          );
-                          final evt = await Event.newFileMessage(fevt, u);
-                          u.queueSendEvent(evt);
-                          evt.trySend();
-                          fevt.msgId = messageBox.put(
-                            Message(
-                              eventUid: evt.uid,
-                              userId: u.id,
-                              type: "file.v1",
-                              isTrusted: true,
-                              isSelf: true,
-                              nonce: evt.json["nonce"],
-                              data: utf8.encode(evt.jsonBody) as Uint8List,
-                            ),
-                          );
-                          fileevtBox.put(fevt);
-                        }
+                        await u.selfPgp();
+                        loadUser();
                       },
-                      icon: const Icon(Icons.attach_file),
+                      child: const Text("Request user's PGP key manually"),
                     ),
-                  if (msgCtrl.text.isNotEmpty)
-                    IconButton(
-                      onPressed: () async {
-                        final evt = Event.newTextMessage(msgCtrl.text);
-                        evt.id = u.queueSendEvent(evt);
-                        evt.trySend();
-                        messageBox.put(
-                          Message(
-                            eventUid: evt.uid,
-                            userId: u.id,
-                            type: "text.v1",
-                            isTrusted: true,
-                            isSelf: true,
-                            nonce: evt.json["nonce"],
-                            data: base64Decode(evt.json["data"]),
-                          ),
-                        );
-                        msgCtrl.clear();
-                        loadMessages();
-                      },
-                      icon: const Icon(Icons.send),
-                    ),
-                ],
-              ),
-            if (u.publicKey == null)
-              SizedBox(
-                width: double.maxFinite,
-                child: OutlinedButton(
-                  onPressed: () async {
-                    await u.selfPgp();
-                    loadUser();
-                  },
-                  child: const Text("Request user's PGP key manually"),
-                ),
-              ),
-            if (kDebugMode)
-              SizedBox(
-                width: double.maxFinite,
-                child: OutlinedButton(
-                  onPressed: () async {
-                    await u.introduce();
-                    loadUser();
-                  },
-                  child: const Text("send introduce.v1"),
-                ),
-              ),
-          ],
-        ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
