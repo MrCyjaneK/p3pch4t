@@ -6,7 +6,7 @@ In this document I won't get too deep into how we can use multiple transport pro
 
 ### Starting a conversation
 
-Let's assume that we have Alice and Bob, Alice has Bob's `connstring` [^1], Bob doesn't know Alice and decides to add her as contact.
+Let's assume that we have Alice and Bob, and Bob has Alice's `connstring` [^1], Bob doesn't know Alice and decides to add her as contact.
 
 Bob is sending request to Alice`/core/selfpgp` and verifies that served pgp key is correct [^2]
 
