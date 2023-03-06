@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:i2p_flutter/i2p_flutter.dart';
+import 'package:i2p_flutter/i2p_manager_page.dart';
 import 'package:p3pch4t/helpers/pgp.dart';
 import 'package:p3pch4t/prefs.dart';
 import 'package:p3pch4t/helpers/consts.dart' as c;
@@ -29,16 +30,29 @@ class _GenPGPPageState extends State<GenPGPPage> {
         title: const Text("Generate PGP"),
         actions: [
           IconButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const RestorePage();
-                    },
-                  ),
-                );
-              },
-              icon: const Icon(Icons.restore))
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return const RestorePage();
+                  },
+                ),
+              );
+            },
+            icon: const Icon(Icons.restore),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return const I2PManagerPage();
+                  },
+                ),
+              );
+            },
+            icon: const Icon(Icons.tornado),
+          ),
         ],
       ),
       body: SingleChildScrollView(

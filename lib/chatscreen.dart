@@ -368,52 +368,18 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
             ListTile(
               onTap: msg.isSelf
                   ? () {
+                      _editMessageDialog(msgTxt, msg);
+                    }
+                  : () {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          final editCtrl = TextEditingController(text: msgTxt);
-                          return AlertDialog(
-                            title: const Text("Edit message"),
-                            content: TextField(
-                              controller: editCtrl,
-                              minLines: 4,
-                              maxLines: 8,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'New message content',
-                              ),
-                            ),
-                            actions: [
-                              SizedBox(
-                                width: double.maxFinite,
-                                child: OutlinedButton.icon(
-                                  onPressed: () {
-                                    final newJson =
-                                        Event.newTextMessage(editCtrl.text)
-                                            .json;
-                                    newJson["nonce"] = msg.nonce;
-                                    final newEvt = Event(
-                                      jsonBody: jsonEncode(newJson),
-                                      privKey: prefs.getString("privkey")!,
-                                    );
-                                    newEvt.id = u.queueSendEvent(newEvt);
-                                    msg.data =
-                                        base64Decode(newEvt.json["data"]);
-                                    messageBox.put(msg);
-                                    setState(() {});
-                                    u.sendEvent(newEvt);
-                                    Navigator.of(context).pop();
-                                  },
-                                  icon: const Icon(Icons.send),
-                                  label: const Text("Update"),
-                                ),
-                              ),
-                            ],
+                          return const AlertDialog(
+                            title: Text("TODO: reactions"),
                           );
                         },
                       );
-                    }
-                  : null,
+                    },
               tileColor: tileColor,
               title: MarkdownBody(
                 data: msgTxt,
@@ -431,6 +397,50 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<dynamic> _editMessageDialog(String msgTxt, Message msg) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        final editCtrl = TextEditingController(text: msgTxt);
+        return AlertDialog(
+          title: const Text("Edit message"),
+          content: TextField(
+            controller: editCtrl,
+            minLines: 4,
+            maxLines: 8,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'New message content',
+            ),
+          ),
+          actions: [
+            SizedBox(
+              width: double.maxFinite,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  final newJson = Event.newTextMessage(editCtrl.text).json;
+                  newJson["nonce"] = msg.nonce;
+                  final newEvt = Event(
+                    jsonBody: jsonEncode(newJson),
+                    privKey: prefs.getString("privkey")!,
+                  );
+                  newEvt.id = u.queueSendEvent(newEvt);
+                  msg.data = base64Decode(newEvt.json["data"]);
+                  messageBox.put(msg);
+                  setState(() {});
+                  u.sendEvent(newEvt);
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.send),
+                label: const Text("Update"),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
