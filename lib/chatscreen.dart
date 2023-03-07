@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:duration/duration.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:p3pch4t/classes/downloadqueue.dart';
 import 'package:p3pch4t/classes/event.dart';
@@ -13,10 +13,12 @@ import 'package:p3pch4t/classes/fileevt.dart';
 import 'package:p3pch4t/classes/message.dart';
 import 'package:p3pch4t/classes/user.dart';
 import 'package:p3pch4t/helpers/themes.dart';
+import 'package:p3pch4t/messagepage.dart';
 import 'package:p3pch4t/objectbox.g.dart';
 import 'package:p3pch4t/prefs.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:p3pch4t/profilepage.dart';
+import 'package:p3pch4t/server/p3pmd.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -24,8 +26,6 @@ import 'package:path/path.dart' as p;
 import 'package:random_string/random_string.dart';
 
 import 'package:mime/mime.dart';
-
-import 'package:markdown/markdown.dart' as md;
 
 class ChatScreenPage extends StatefulWidget {
   const ChatScreenPage({Key? key, required this.u}) : super(key: key);
@@ -96,6 +96,11 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
       // backgroundColor: u.backgroundColor,
       appBar: AppBar(
         backgroundColor: u.backgroundColor,
+        foregroundColor: u.backgroundColor == null
+            ? null
+            : u.backgroundColor!.computeLuminance() > 0.379
+                ? Colors.black
+                : Colors.white,
         title: Text(widget.u.name),
         actions: [
           IconButton(
@@ -342,7 +347,7 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
     );
   }
 
-  Padding _textV1Tile(Message msg, Event? evt, String append) {
+  Widget _textV1Tile(Message msg, Event? evt, String append) {
     Color? tileColor;
     if (evt == null) {
       tileColor = null;
@@ -353,9 +358,16 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
     } else {
       tileColor = Colors.red;
     }
+    var msgTxtFull = utf8.decode(msg.data);
     var msgTxt = utf8.decode(msg.data);
+    int limit = 6;
     if (msg.originName != null) {
+      limit += 2;
       msgTxt = "`${msg.originName}`\n\n$msgTxt";
+    }
+    bool isShownFull = (msgTxt.split("\n").length < limit);
+    if (!isShownFull) {
+      msgTxt = msgTxt.split("\n").take(limit - 1).join("\n");
     }
     return Padding(
       padding: EdgeInsets.only(
@@ -381,18 +393,40 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
                       );
                     },
               tileColor: tileColor,
-              title: MarkdownBody(
-                data: msgTxt,
-                selectable: true,
-                extensionSet: md.ExtensionSet(
-                  md.ExtensionSet.gitHubFlavored.blockSyntaxes,
-                  [
-                    md.EmojiSyntax(),
-                    ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes
-                  ],
-                ),
+              title: p3pMd(msgTxt: msgTxt),
+              subtitle: Row(
+                children: [
+                  SelectableText(
+                    prettyDuration(
+                      DateTime.now().difference(msg.time),
+                      tersity: _getTeristy(
+                        DateTime.now().difference(msg.time),
+                      ),
+                    ),
+                  ),
+                  if (!isShownFull)
+                    TextButton(
+                      onPressed: isShownFull
+                          ? null
+                          : () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return MessagePage(
+                                      u: u,
+                                      msgTxt: msgTxtFull,
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.only(),
+                      ),
+                      child: const Text("show full"),
+                    ),
+                ],
               ),
-              subtitle: SelectableText("${msg.time.toIso8601String()}$append"),
             ),
           ],
         ),
@@ -442,6 +476,18 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
         );
       },
     );
+  }
+}
+
+DurationTersity _getTeristy(Duration difference) {
+  if (difference.inMinutes < 5) {
+    return DurationTersity.second;
+  } else if (difference.inHours < 24) {
+    return DurationTersity.minute;
+  } else if (difference.inHours < 48) {
+    return DurationTersity.hour;
+  } else {
+    return DurationTersity.day;
   }
 }
 

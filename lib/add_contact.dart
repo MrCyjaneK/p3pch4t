@@ -9,18 +9,22 @@ import 'package:p3pch4t/prefs.dart';
 import 'package:p3pch4t/widgets/qr.dart';
 
 class AddContact extends StatefulWidget {
-  const AddContact({Key? key}) : super(key: key);
+  const AddContact({Key? key, this.initialContact}) : super(key: key);
+
+  final String? initialContact;
 
   @override
   State<AddContact> createState() => _AddContactState();
 }
 
 class _AddContactState extends State<AddContact> {
-  final idCtrl = TextEditingController();
+  late final idCtrl = TextEditingController(text: widget.initialContact);
 
   @override
   void initState() {
     super.initState();
+
+    addData = Uri.tryParse(idCtrl.text);
   }
 
   bool isScanning = false;
@@ -40,6 +44,7 @@ class _AddContactState extends State<AddContact> {
                   setState(() {
                     idCtrl.text = barcodes.barcodes.first.rawValue.toString();
                     isScanning = !isScanning;
+                    addData = Uri.tryParse(idCtrl.text);
                   });
                 },
               ),

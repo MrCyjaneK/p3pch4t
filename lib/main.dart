@@ -174,7 +174,7 @@ Future<List<int>> doEventTasks() async {
     i2pFlutterPlugin.runI2pd();
     // notify(333, "i2pd started!", "I2pd wasn't running! We had to restart it.");
   }
-  List<Event> events = eventBox.getAll();
+  List<Event> events = eventBox.query().order(Event_.id).build().find();
 
   int statTotal = events.length;
   int statRemoved = 0;

@@ -4,7 +4,7 @@
 
 # About
 
-P3pch4t is a simple chat app that uses i2p to connect devices and pgp to encrypt messages. Check our our features:
+**P3p ch4t** - Ensures anonymity by using i2p, and provides privacy with PGP.
 
 ###### Features
 
@@ -17,7 +17,7 @@ P3pch4t is a simple chat app that uses i2p to connect devices and pgp to encrypt
  - [x] Chat customization (background color, for now, will add more options probably)
  - [ ] Message reactions
  - [ ] Single account on multiple devices
- - [ ] Backup and restore
+ - [x] Backup and restore
 
 Current UI/UX is more of a demonstration of features and a raw access to backend rather than a final product. So don't get scared by how it looks at the moment.
 

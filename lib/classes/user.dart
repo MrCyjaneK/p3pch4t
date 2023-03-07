@@ -32,7 +32,22 @@ class User {
 
   String bio = "";
 
-  bool isIntroduced = false;
+  @Property(type: PropertyType.date)
+  DateTime lastIntroduced = DateTime.fromMicrosecondsSinceEpoch(0);
+
+  @Transient()
+  bool get isIntroduced {
+    return (DateTime.now().difference(lastIntroduced).inSeconds < 60 * 60 * 12);
+  }
+
+  @Transient()
+  set isIntroduced(bool val) {
+    if (val) {
+      lastIntroduced = DateTime.now();
+    } else {
+      lastIntroduced = DateTime.fromMicrosecondsSinceEpoch(0);
+    }
+  }
 
   int? rawBackgroundColor;
 
