@@ -19,6 +19,7 @@ import 'package:p3pch4t/prefs.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:p3pch4t/profilepage.dart';
 import 'package:p3pch4t/server/p3pmd.dart';
+import 'package:p3pch4t/usercalendarpage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -41,7 +42,7 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
 
   final msgCtrl = TextEditingController();
 
-  late User u;
+  late User u = widget.u;
 
   void loadMessages() async {
     int len = msgs.length;
@@ -65,7 +66,7 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
   void loadUser() {
     if (!mounted) return;
     setState(() {
-      u = userBox.query(User_.id.equals(widget.u.id)).build().findFirst()!;
+      u = userBox.query(User_.id.equals(u.id)).build().findFirst()!;
     });
   }
 
@@ -101,8 +102,20 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
             : u.backgroundColor!.computeLuminance() > 0.379
                 ? Colors.black
                 : Colors.white,
-        title: Text(widget.u.name),
+        title: Text(u.name),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return UserCalendarPage(u: u);
+                  },
+                ),
+              );
+            },
+            icon: const Icon(Icons.calendar_month),
+          ),
           IconButton(
             onPressed: () {
               Navigator.of(context).push(
@@ -127,6 +140,11 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
               scale: 2, // scale for nicer view
               repeat: ImageRepeat.repeat,
               color: u.backgroundColor,
+              opacity: (u.backgroundColor == null)
+                  ? null
+                  : const AlwaysStoppedAnimation(
+                      0.5,
+                    ),
             ),
           ),
           //SvgPicture.asset("assets/backgrounds/jigsaw.svg"),
@@ -363,7 +381,8 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
     int limit = 6;
     if (msg.originName != null) {
       limit += 2;
-      msgTxt = "`${msg.originName}`\n\n$msgTxt";
+      msgTxt =
+          "[`${msg.originName}`](${msg.originConnmethod}://${msg.originConnstring})\n\n$msgTxt";
     }
     bool isShownFull = (msgTxt.split("\n").length < limit);
     if (!isShownFull) {
@@ -393,7 +412,15 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
                       );
                     },
               tileColor: tileColor,
-              title: p3pMd(msgTxt: msgTxt),
+              title: Stack(
+                children: [
+                  if (evt?.isRelayed == false)
+                    LinearProgressIndicator(
+                      color: tileColor ?? u.backgroundColor,
+                    ),
+                  p3pMd(msgTxt: msgTxt),
+                ],
+              ),
               subtitle: Row(
                 children: [
                   SelectableText(
@@ -480,7 +507,7 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
 }
 
 DurationTersity _getTeristy(Duration difference) {
-  if (difference.inMinutes < 5) {
+  if (difference.inMinutes < 1) {
     return DurationTersity.second;
   } else if (difference.inHours < 24) {
     return DurationTersity.minute;

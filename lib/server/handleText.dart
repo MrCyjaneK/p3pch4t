@@ -14,6 +14,8 @@ import 'package:shelf/shelf.dart';
 //   "data": "base64 encoded utf8 encoded plaintext string (formatted in markdown)",
 // }
 
+// TODO: incomming -> incomming $(u.id?);
+
 Future<Response> handleTextV1(Map<String, dynamic> req) async {
   Message? msg = messageBox
       .query(
@@ -51,10 +53,32 @@ Future<Response> handleTextV1(Map<String, dynamic> req) async {
     msg.originName = req["body"]["body"]["origin"]["name"];
     msg.originConnmethod = req["body"]["body"]["origin"]["connmethod"];
     msg.originConnstring = req["body"]["body"]["origin"]["connstring"];
-  } catch (e) {
-    print(e);
-  }
+  } catch (e) {}
   msg.id = messageBox.put(msg);
-  notify(msg.id, u.name, utf8.decode(msg.data));
+  bool customTagShouldNotify = false;
+  u.notifyCustomTags.split(",").forEach((element) {
+    if (u.notifyCustomTags != "" &&
+        utf8.decode(msg!.data).toLowerCase().contains(element.toLowerCase())) {
+      customTagShouldNotify = true;
+    }
+  });
+  if ((u.notifyOnEveryone &&
+      utf8.decode(msg.data).toLowerCase().contains("@everyone"))) {
+    notify(msg.id, "${u.id}.messages.everyone",
+        "${u.name} messages (@everyone)", u.name, utf8.decode(msg.data));
+  } else if (u.notifyOnTag &&
+      utf8
+          .decode(msg.data)
+          .toLowerCase()
+          .contains(prefs.getString("username").toString().toLowerCase())) {
+    notify(msg.id, "${u.id}.messages.username", "${u.name} messages (Mention)",
+        u.name, utf8.decode(msg.data));
+  } else if (customTagShouldNotify) {
+    notify(msg.id, "${u.id}.messages.customtag",
+        "${u.name} messages (custom tags)", u.name, utf8.decode(msg.data));
+  } else if (u.notifyOnAll) {
+    notify(msg.id, "${u.id}.messages.all", "${u.name} messages", u.name,
+        utf8.decode(msg.data));
+  }
   return json({"ok": true});
 }

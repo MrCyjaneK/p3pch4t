@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:p3pch4t/classes/user.dart';
 import 'package:p3pch4t/objectbox.g.dart';
 import 'package:p3pch4t/prefs.dart';
 import 'package:p3pch4t/server/chat_server.dart';
+import 'package:p3pch4t/server/notify.dart';
 import 'package:shelf/shelf.dart';
 
 Future<Response> handleIntroductionV1(Map<String, dynamic> req) async {
@@ -10,10 +13,19 @@ Future<Response> handleIntroductionV1(Map<String, dynamic> req) async {
       .build()
       .findFirst();
   final uUri = Uri.parse(req["body"]["body"]["data"]["connstring"]);
-  u ??= User(
-    connstring: uUri.host + uUri.path,
-    connmethod: req["body"]["body"]["data"]["connmethod"],
-  );
+  if (u == null) {
+    u = User(
+      connstring: uUri.host + uUri.path,
+      connmethod: req["body"]["body"]["data"]["connmethod"],
+    );
+    notify(
+      Random().nextInt(555),
+      "newuserintroduction",
+      "New contacts",
+      req["body"]["body"]["data"]["username"],
+      "New contact added!",
+    );
+  }
   u.lastSeen = DateTime.now();
   u.connstring = uUri.host + uUri.path;
   u.connmethod = req["body"]["body"]["data"]["connmethod"];
@@ -23,6 +35,7 @@ Future<Response> handleIntroductionV1(Map<String, dynamic> req) async {
   u.rawBackgroundColor = req["body"]["body"]["data"]["backgroundColor"];
   u.chatBackgroundAsset = req["body"]["body"]["data"]["backgroundAsset"];
   userBox.put(u);
+
   return json({
     "ok": true,
   });

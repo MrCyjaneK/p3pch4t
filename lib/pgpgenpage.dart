@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:i2p_flutter/i2p_flutter.dart';
 import 'package:i2p_flutter/i2p_manager_page.dart';
+import 'package:p3pch4t/errorpage.dart';
 import 'package:p3pch4t/helpers/pgp.dart';
 import 'package:p3pch4t/prefs.dart';
 import 'package:p3pch4t/helpers/consts.dart' as c;
@@ -52,6 +53,18 @@ class _GenPGPPageState extends State<GenPGPPage> {
               );
             },
             icon: const Icon(Icons.tornado),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return const ErrorPage();
+                  },
+                ),
+              );
+            },
+            icon: const Icon(Icons.bug_report),
           ),
         ],
       ),
@@ -140,6 +153,7 @@ class _GenPGPPageState extends State<GenPGPPage> {
 
           _log(
               "[i2pd(embedded)]: NOTE: i2pd needs at least 2 minutes to connect to local destination and around 15 minutes for a reasonable peer discovery (so consider 15 minutes after first run a moment when others can message you and when you can message others.)");
+
           if (!await i2pFlutterPlugin.isRunning()) {
             _log("[i2pd(embedded)]: i2p is not started - starting.");
             i2pFlutterPlugin.runI2pd();

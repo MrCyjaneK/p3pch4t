@@ -10,6 +10,7 @@ import 'package:p3pch4t/chatscreen.dart';
 import 'package:p3pch4t/classes/message.dart';
 import 'package:p3pch4t/classes/user.dart';
 import 'package:p3pch4t/creategrouppage.dart';
+import 'package:p3pch4t/errorpage.dart';
 import 'package:p3pch4t/eventqueuepage.dart';
 import 'package:p3pch4t/groupslistpage.dart';
 import 'package:p3pch4t/objectbox.g.dart';
@@ -89,8 +90,10 @@ class _MyHomePageState extends State<MyHomePage> {
     if (eq.isNotEmpty) {
       if (mounted) {
         setState(() {
-          progress = eq.length / (eq.last.id - (eq.last.id - eq.length));
-          progressLabel = "Sending pending events";
+          progress = 1 - (eq.length / (eq.last.id));
+          eq.last.id / (eq.last.id - eq.length);
+          progressLabel = /* 2,9,7 */
+              "Sending pending events (${eq.length} left..)";
         });
       }
       return;
@@ -108,9 +111,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    prefs.reload();
     return Scaffold(
       appBar: AppBar(
         title: Text("${p3pTxt}ch4t"),
+        actions: [
+          if (prefs.getString("lastLog").toString() != "null")
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const ErrorPage();
+                    },
+                  ),
+                );
+              },
+              icon: const Icon(Icons.bug_report),
+            ),
+        ],
       ),
       drawer: const AppDrawer(),
       body: Column(
@@ -155,6 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       return Card(
                         child: ListTile(
                           onTap: () {
+                            uList[index] = userBox.get(uList[index].id)!;
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) {

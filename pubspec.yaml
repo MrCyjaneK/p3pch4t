@@ -46,6 +46,8 @@ dependencies:
   share_plus: ^6.3.1
   duration: ^3.0.12
   url_launcher: ^6.1.10
+  table_calendar: ^3.0.9
+  date_format: ^2.0.7
 
 dev_dependencies:
   flutter_test:

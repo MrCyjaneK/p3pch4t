@@ -6,6 +6,7 @@ import 'package:p3pch4t/classes/user.dart';
 import 'package:p3pch4t/objectbox.g.dart';
 import 'package:p3pch4t/prefs.dart';
 import 'package:p3pch4t/server/chat_server.dart';
+import 'package:p3pch4t/server/ssmdc.v1/calendarv1.syncv1.dart';
 import 'package:p3pch4t/server/ssmdc.v1/textv1service.dart';
 import 'package:shelf/shelf.dart';
 
@@ -32,8 +33,10 @@ ssmdcv1coreEvent(Request request, String groupUid) async {
       // this. I think.
       // NOTE: v2. no.
       return await ssmdcv1HandleIntroductionV1(req, group);
-    case "text.v1":
+    case 'text.v1':
       return await ssmdcv1HandleTextV1(req, group);
+    case 'calendar.v1.sync.v1':
+      return await ssmdcv1HandleCalendarV1SyncV1(req, group);
     default:
       return await ssmdcv1HandleEvent(req, group);
   }

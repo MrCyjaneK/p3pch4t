@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:p3pch4t/add_contact.dart';
+import 'package:p3pch4t/chatscreen.dart';
+import 'package:p3pch4t/classes/user.dart';
+import 'package:p3pch4t/objectbox.g.dart';
+import 'package:p3pch4t/prefs.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class p3pMd extends StatelessWidget {
@@ -29,15 +33,28 @@ class p3pMd extends StatelessWidget {
         if (uri == null) return;
 
         if (uri.scheme == "i2p") {
-          Navigator.of(context).push(
-            MaterialPageRoute(
+          print('${uri.host}${uri.path}');
+          final User? u = userBox
+              .query(User_.connstring.equals("${uri.host}${uri.path}"))
+              .build()
+              .findFirst();
+          if (u != null) {
+            Navigator.of(context).push(MaterialPageRoute(
               builder: (context) {
-                return AddContact(
-                  initialContact: href,
-                );
+                return ChatScreenPage(u: u);
               },
-            ),
-          );
+            ));
+          } else {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) {
+                  return AddContact(
+                    initialContact: href,
+                  );
+                },
+              ),
+            );
+          }
         } else {
           launchUrl(uri, mode: LaunchMode.externalApplication);
         }

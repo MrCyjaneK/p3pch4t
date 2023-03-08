@@ -101,6 +101,9 @@ Future<Response> handleFileV1(Map<String, dynamic> req) async {
 
   fileevtBox.put(fileevt);
 
-  notify(msg.id, u.name, fileevt.caption);
+  if (u.notifyOnAll) {
+    notify(msg.id, "${u.id}.messages", "${u.name} messages", u.name,
+        fileevt.caption);
+  }
   return json({"ok": true});
 }

@@ -1,3 +1,4 @@
+import 'package:p3pch4t/classes/calendar.v1/calendarevent.dart';
 import 'package:p3pch4t/classes/downloadqueue.dart';
 import 'package:p3pch4t/classes/event.dart';
 import 'package:p3pch4t/classes/fileevt.dart';
@@ -19,6 +20,8 @@ late Box<Event> eventBox;
 late Box<FileEvt> fileevtBox;
 late Box<DownloadItem> downloadItemBox;
 late Box<SSMDCv1GroupConfig> ssmdcv1GroupConfigBox;
+late Box<P3pCalendarEvent> p3pCalendarEventBox;
+
 late final Store store;
 
 bool isStoreLoaded = false;
@@ -42,6 +45,7 @@ Future<void> initStorage() async {
   fileevtBox = store.box();
   downloadItemBox = store.box();
   ssmdcv1GroupConfigBox = store.box();
+  p3pCalendarEventBox = store.box();
   cleanEvents();
   prefs = await SharedPreferences.getInstance();
 }

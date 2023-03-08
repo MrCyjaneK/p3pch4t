@@ -150,7 +150,7 @@ class SSMDCv1GroupConfig {
   }
 
   void unadminUser(User u) {
-    if (banList.contains(u.id)) {
+    if (adminList.contains(u.id)) {
       final newAdminList = adminList;
       newAdminList.removeWhere((element) => element == u.id);
       adminList = newAdminList;
@@ -160,6 +160,56 @@ class SSMDCv1GroupConfig {
 
   bool isUserAdmin(User u) {
     return adminList.contains(u.id);
+  }
+
+  @Transient()
+  List<int> get calendarModList {
+    List<int> ret = [];
+    rawCalendarModList.split(",").forEach((elm) {
+      int? i = int.tryParse(elm);
+      if (i != null) ret.add(i);
+    });
+    return ret;
+  }
+
+  @Transient()
+  set calendarModList(List<int> newCalendarModList) {
+    rawCalendarModList = newCalendarModList.join(",");
+  }
+
+  String rawCalendarModList = "";
+
+  void calendarModUser(User u) async {
+    if (!calendarModList.contains(u.id)) {
+      final newCalendarModList = calendarModList;
+      newCalendarModList.add(u.id);
+      calendarModList = newCalendarModList;
+      final req =
+          Event.newTextMessage("${u.name}, you are now calendar admin!").json;
+
+      req["origin"] = {
+        "name": "$name (service)",
+      };
+      final Event evt = Event(
+        jsonBody: jsonEncode(req),
+        privKey: groupPrivatePgp,
+      );
+      u.queueSendEvent(evt);
+    }
+    ssmdcv1GroupConfigBox.put(this);
+  }
+
+  void unCalendarModUser(User u) {
+    if (calendarModList.contains(u.id)) {
+      final newCalendarModList = calendarModList;
+      newCalendarModList.removeWhere((element) => element == u.id);
+      calendarModList = newCalendarModList;
+    }
+    ssmdcv1GroupConfigBox.put(this);
+  }
+
+  bool isUserCalendarMod(User u) {
+    return calendarModList.contains(u.id);
   }
 
   late String groupPrivatePgp;

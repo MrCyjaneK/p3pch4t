@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:p3pch4t/chatscreen.dart';
 import 'package:p3pch4t/classes/user.dart';
 import 'package:p3pch4t/objectbox.g.dart';
 import 'package:p3pch4t/prefs.dart';
@@ -114,6 +115,11 @@ class _AddContactState extends State<AddContact> {
                         .build()
                         .findFirst();
                     if (u != null) {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) {
+                          return ChatScreenPage(u: u);
+                        },
+                      ));
                       return;
                     }
                     var c = User(

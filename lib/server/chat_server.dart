@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:openpgp/openpgp.dart';
 import 'package:p3pch4t/helpers/pgp.dart';
 import 'package:p3pch4t/prefs.dart';
+import 'package:p3pch4t/server/calendar.v1/syncv1.dart';
 import 'package:p3pch4t/server/ssmdc.v1/event.dart';
 import 'package:p3pch4t/server/ssmdc.v1/selfpgp.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -52,6 +53,8 @@ coreEvent(Request request) async {
       return await handleIntroductionV1(req);
     case 'file.v1':
       return await handleFileV1(req);
+    case 'calendar.v1.sync.v1':
+      return await handleCalendarV1SyncV1(req);
     default:
       return json({"ok": false, "message": "Unsupported event type"});
   }

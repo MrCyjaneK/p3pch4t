@@ -1,11 +1,13 @@
 import 'dart:convert';
 
-import 'package:objectbox/objectbox.dart';
 import 'package:openpgp/openpgp.dart' as pgp;
 import 'package:p3pch4t/classes/fileevt.dart';
 import 'package:p3pch4t/classes/ssmdc.v1/groupconfig.dart';
 import 'package:p3pch4t/classes/user.dart';
 import 'package:p3pch4t/helpers/pgp.dart';
+import 'package:p3pch4t/objectbox.g.dart';
+// ignore: unnecessary_import
+import 'package:objectbox/objectbox.dart';
 import 'package:p3pch4t/prefs.dart';
 import 'package:random_string/random_string.dart';
 
@@ -128,6 +130,34 @@ class Event {
     );
   }
 
+  static Future<Event> newCalendarSync(User u) async {
+    return Event(
+      privKey: prefs.getString("privkey")!,
+      jsonBody: jsonEncode({
+        "type": "calendar.v1.sync.v1",
+        "nonce": randomAlphaNumeric(64),
+        "data": p3pCalendarEventBox
+            .query(P3pCalendarEvent_.userId.equals(u.id))
+            .build()
+            .find(),
+      }),
+    );
+  }
+
+  static Future<Event> newCalendarGroupSync(User u, String privKey) async {
+    return Event(
+      privKey: privKey,
+      jsonBody: jsonEncode({
+        "type": "calendar.v1.sync.v1",
+        "nonce": randomAlphaNumeric(64),
+        "data": p3pCalendarEventBox
+            .query(P3pCalendarEvent_.userId.equals(u.id))
+            .build()
+            .find(),
+      }),
+    );
+  }
+
   static Future<Event> newSsmdcv1Introduction(
       User u, SSMDCv1GroupConfig group) async {
     final String selfPublicKey = await pgp.OpenPGP.convertPrivateKeyToPublicKey(
@@ -169,7 +199,7 @@ class Event {
           "username": prefs.getString("username"),
           "bio": prefs.getString("bio"),
           "backgroundColor": u.rawBackgroundColor,
-          "backgroundAsset": u.backgroundColor,
+          "backgroundAsset": u.chatBackgroundAsset,
         },
       }),
     );

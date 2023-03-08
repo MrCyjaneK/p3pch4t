@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:date_format/date_format.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i2p_flutter/i2p_flutter.dart';
@@ -24,7 +25,13 @@ Future<void> doTheObvious() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await doTheObvious();
+
+  FlutterError.onError = (details) {
+    prefs.setString(
+        'lastError', details.toString(minLevel: DiagnosticLevel.debug));
+  };
   if ((prefs.getString("privkey") != null)) {
     if (Platform.isAndroid) {
       await initializeService();
@@ -122,7 +129,13 @@ Future<void> onStart(ServiceInstance service) async {
         flutterLocalNotificationsPlugin.show(
           notificationId,
           'p3pch4t is running',
-          'q/p/r: ${stats[0]}/${stats[1]}/${stats[2]}; ${dt.hour}:${dt.minute}:${dt.second}',
+          'q/p/r: ${stats[0]}/${stats[1]}/${stats[2]}; ${formatDate(dt, [
+                HH,
+                ':',
+                nn,
+                '.',
+                ss
+              ])}',
           const NotificationDetails(
             android: AndroidNotificationDetails(
               notificationChannelId,
@@ -213,8 +226,6 @@ Future<List<int>> doEventTasks() async {
           (createHourDiff >= 13 && minuteDiff >= 5) ||
           (createHourDiff >= 49 && minuteDiff >= 10) ||
           (createHourDiff >= 169 && minuteDiff >= 20)) {
-        print("a");
-        print(connstringSkipList);
         statProcessed++;
         if (!(await event.trySend(connstringSkipList))) {
           for (var elm in event.destinations) {

@@ -2,11 +2,11 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:p3pch4t/classes/ssmdc.v1/groupconfig.dart';
 import 'package:p3pch4t/classes/user.dart';
-import 'package:markdown/markdown.dart' as md;
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:p3pch4t/helpers/themes.dart';
 import 'package:p3pch4t/objectbox.g.dart';
 import 'package:p3pch4t/prefs.dart';
+import 'package:p3pch4t/server/p3pmd.dart';
+import 'package:p3pch4t/usercalendarpage.dart';
 import 'package:p3pch4t/widgets/qr.dart';
 import 'package:select_dialog/select_dialog.dart';
 
@@ -25,7 +25,10 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late Color? backgroundColor = widget.u.backgroundColor;
+  late User u = widget.u;
+  late Color? backgroundColor = u.backgroundColor;
+
+  late final notifyTagsCtrl = TextEditingController(text: u.notifyCustomTags);
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.u.name),
+        title: Text(u.name),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -48,7 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                   child: SelectableText(
-                    "${widget.u.connmethod}://${widget.u.connstring}",
+                    "${u.connmethod}://${u.connstring}",
                     style: Theme.of(context)
                         .textTheme
                         .displaySmall
@@ -56,32 +59,82 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
-              UserQrWidget(u: widget.u),
+              UserQrWidget(u: u),
               const Divider(),
               SizedBox(
                 width: double.maxFinite,
-                child: MarkdownBody(
-                  selectable: true,
-                  data: widget.u.bio,
-                  extensionSet: md.ExtensionSet(
-                    md.ExtensionSet.gitHubFlavored.blockSyntaxes,
-                    [
-                      md.EmojiSyntax(),
-                      ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes
-                    ],
-                  ),
+                child: p3pMd(
+                  msgTxt: u.bio,
                 ),
               ),
-              const Divider(),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SelectableText(
-                  widget.u.publicKey.toString(),
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall!
-                      .copyWith(fontFamily: "monospace"),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                child: Divider(),
+              ),
+              Text(
+                "Notifications",
+                style: Theme.of(context)
+                    .textTheme
+                    .displayLarge!
+                    .copyWith(fontSize: 32),
+              ),
+              CheckboxListTile(
+                value: u.notifyOnAll,
+                onChanged: (bool? val) {
+                  setState(() {
+                    u.notifyOnAll = val == true;
+                  });
+                  userBox.put(u);
+                },
+                title: const Text("Notify on all messages"),
+              ),
+              CheckboxListTile(
+                value: u.notifyOnTag,
+                onChanged: (bool? val) {
+                  setState(() {
+                    u.notifyOnTag = val == true;
+                  });
+                  userBox.put(u);
+                },
+                title: Text("Notify on tag (${prefs.getString("username")})"),
+              ),
+              CheckboxListTile(
+                value: u.notifyOnCalendarEventsAdded,
+                onChanged: (bool? val) {
+                  setState(() {
+                    u.notifyOnCalendarEventsAdded = val == true;
+                  });
+                  userBox.put(u);
+                },
+                title: const Text("Notify on @everybody"),
+              ),
+              CheckboxListTile(
+                value: u.notifyOnEveryone,
+                onChanged: (bool? val) {
+                  setState(() {
+                    u.notifyOnEveryone = val == true;
+                  });
+                  userBox.put(u);
+                },
+                title: const Text("Notify on new calendar events"),
+                subtitle: const Text("This doesn't affect reminders"),
+              ),
+              TextField(
+                controller: notifyTagsCtrl,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Notify on match (comma separated)',
                 ),
+                onChanged: (value) {
+                  setState(() {
+                    u.notifyCustomTags = value;
+                  });
+                  userBox.put(u);
+                },
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                child: Divider(),
               ),
               SizedBox(
                 width: double.maxFinite,
@@ -89,7 +142,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
                   onPressed: () {
                     final msgs = messageBox
-                        .query(Message_.userId.equals(widget.u.id))
+                        .query(Message_.userId.equals(u.id))
                         .build()
                         .find();
                     for (var msg in msgs) {
@@ -105,7 +158,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
                   onPressed: () {
-                    userBox.remove(widget.u.id);
+                    final msgs = messageBox
+                        .query(Message_.userId.equals(u.id))
+                        .build()
+                        .find();
+                    for (var msg in msgs) {
+                      messageBox.remove(msg.id);
+                    }
+                    userBox.remove(u.id);
                     Navigator.of(context)
                       ..pop()
                       ..pop();
@@ -124,13 +184,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       context: context,
                       builder: (context) {
                         return changeThemeAlert(
-                          u: widget.u,
+                          u: u,
                         );
                       },
                     );
                   },
                   icon: const Icon(Icons.backpack),
-                  label: Text(widget.u.chatBackgroundAsset == null
+                  label: Text(u.chatBackgroundAsset == null
                       ? "Set theme"
                       : "Change theme"),
                 ),
@@ -141,25 +201,48 @@ class _ProfilePageState extends State<ProfilePage> {
                   style:
                       OutlinedButton.styleFrom(foregroundColor: Colors.green),
                   onPressed: () {
-                    // userBox.remove(widget.u.id);
+                    // userBox.remove(u.id);
                     setState(() {
-                      widget.u.rawBackgroundColor = backgroundColor?.value;
+                      u.rawBackgroundColor = backgroundColor?.value;
                     });
-                    userBox.put(widget.u);
-                    Navigator.of(context)
-                      ..pop()
-                      ..pop();
+                    userBox.put(u);
+                    Navigator.of(context).pop();
+                    u.introduce();
                   },
                   icon: const Icon(Icons.save),
                   label: const Text("Save theme"),
                 ),
               ),
               if (widget.group != null)
-                _groupUserManage(group: widget.group!, u: widget.u),
+                _groupUserManage(group: widget.group!, u: u),
+              const Divider(),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SelectableText(
+                  u.publicKey.toString(),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall!
+                      .copyWith(fontFamily: "monospace"),
+                ),
+              ),
               const SizedBox(height: 160),
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return UserCalendarPage(u: u);
+              },
+            ),
+          );
+        },
+        icon: const Icon(Icons.calendar_today),
+        label: const Text("Calendar"),
       ),
     );
   }
@@ -201,7 +284,8 @@ class changeThemeAlert extends StatefulWidget {
 }
 
 class _changeThemeAlertState extends State<changeThemeAlert> {
-  late String? selection = widget.u.chatBackgroundAsset;
+  late String? selection = u.chatBackgroundAsset;
+  late User u = widget.u;
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -245,9 +329,8 @@ class _changeThemeAlertState extends State<changeThemeAlert> {
               child: OutlinedButton.icon(
                 onPressed: () {
                   setState(() {
-                    widget.u.chatBackgroundAsset = selection;
+                    u.chatBackgroundAsset = selection;
                   });
-                  userBox.put(widget.u);
                   Navigator.of(context).pop();
                 },
                 icon: const Icon(Icons.save),
@@ -274,6 +357,8 @@ class _groupUserManage extends StatefulWidget {
 class _groupUserManageState extends State<_groupUserManage> {
   late SSMDCv1GroupConfig group = widget.group;
 
+  late User u = widget.u;
+
   void refresh() {
     setState(() {
       group = ssmdcv1GroupConfigBox.get(group.id)!;
@@ -288,10 +373,10 @@ class _groupUserManageState extends State<_groupUserManage> {
         Text("${group.name}'s config"),
         SizedBox(
           width: double.maxFinite,
-          child: group.isUserBanned(widget.u)
+          child: group.isUserBanned(u)
               ? OutlinedButton.icon(
                   onPressed: () {
-                    group.unbanUser(widget.u);
+                    group.unbanUser(u);
                     refresh();
                   },
                   icon: const Icon(Icons.check),
@@ -299,7 +384,7 @@ class _groupUserManageState extends State<_groupUserManage> {
                 )
               : OutlinedButton.icon(
                   onPressed: () {
-                    group.banUser(widget.u);
+                    group.banUser(u);
                     refresh();
                   },
                   icon: const Icon(Icons.block),
@@ -309,10 +394,10 @@ class _groupUserManageState extends State<_groupUserManage> {
         const SizedBox(height: 16),
         SizedBox(
           width: double.maxFinite,
-          child: group.isUserAdmin(widget.u)
+          child: group.isUserAdmin(u)
               ? OutlinedButton.icon(
                   onPressed: () {
-                    group.unadminUser(widget.u);
+                    group.unadminUser(u);
                     refresh();
                   },
                   icon: const Icon(Icons.block),
@@ -320,11 +405,32 @@ class _groupUserManageState extends State<_groupUserManage> {
                 )
               : OutlinedButton.icon(
                   onPressed: () {
-                    group.adminUser(widget.u);
+                    group.adminUser(u);
                     refresh();
                   },
                   icon: const Icon(Icons.check),
                   label: const Text("Admin"),
+                ),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.maxFinite,
+          child: group.isUserCalendarMod(u)
+              ? OutlinedButton.icon(
+                  onPressed: () {
+                    group.unCalendarModUser(u);
+                    refresh();
+                  },
+                  icon: const Icon(Icons.block),
+                  label: const Text("Revoke Calendar permission"),
+                )
+              : OutlinedButton.icon(
+                  onPressed: () {
+                    group.calendarModUser(u);
+                    refresh();
+                  },
+                  icon: const Icon(Icons.check),
+                  label: const Text("Give calendar permission"),
                 ),
         ),
       ],

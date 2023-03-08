@@ -25,6 +25,17 @@ class User {
 
   String uid = randomAlphaNumeric(16);
 
+  // -     notification settings
+  bool notifyOnAll = true;
+  bool notifyOnTag = true;
+  bool notifyOnEveryone = true;
+  bool notifyOnCalendarEventsAdded = true;
+  String notifyCustomTags = "";
+  // - end notification settings
+
+  @Property(type: PropertyType.date)
+  DateTime firstSeen = DateTime.now();
+
   @Property(type: PropertyType.date)
   DateTime lastSeen = DateTime.now();
   String connstring;
@@ -70,7 +81,7 @@ class User {
 
     var bodyJson = await evt.toJson();
     var encBody = await pgp.OpenPGP.encrypt(jsonEncode(bodyJson), publicKey!);
-    Response resp;
+    Response? resp;
     try {
       // resp = await http.post(
       //   Uri.parse("http://$connstring/core/event"),
@@ -79,22 +90,38 @@ class User {
       resp = await i2pFlutterPlugin.dio().post(
             "http://$connstring/core/event",
             data: encBody,
-            options: Options(responseType: ResponseType.plain),
+            options: Options(
+                responseType: ResponseType.plain,
+                receiveDataWhenStatusError: true),
           );
     } catch (e) {
-      return "Unable to deliver: $e";
+      print(e);
+      if (e is DioError) {
+        resp = e.response;
+      }
+      if (resp == null) {
+        print("null - returning");
+        return "Unable to deliver: $e";
+      }
     }
     dynamic respBody = {"ok": false, "message": resp.data};
     try {
       respBody = jsonDecode(resp.data);
     } catch (e) {
-      print(e);
+      prefs.setString(
+        "lastLog",
+        "${prefs.getString("lastLog")}\nEvent: ${const JsonEncoder.withIndent('    ').convert(evt.json)}\nE: $e",
+      );
     }
     if (respBody["ok"] == true) {
       print("sent and delivered");
       return "ok,$id";
     }
     print("sent but not delivered, response:");
+    prefs.setString(
+      "lastLog",
+      "${prefs.getString("lastLog")}\nEvent: ${const JsonEncoder.withIndent('    ').convert(evt.json)}",
+    );
     print(respBody);
     return "ok,$id"; // note: malfunctioning clients.
     // return "Sent but not delivered";
