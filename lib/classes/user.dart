@@ -98,11 +98,28 @@ class User {
       print(e);
       if (e is DioError) {
         resp = e.response;
+
+        late int delayedHrs;
+        if (!resp.toString().contains(r"<title>I2Pd HTTP proxy</title>")) {
+          evt.lastRelayed = evt.lastRelayed.add(const Duration(hours: 12));
+          delayedHrs = 12;
+        } else {
+          delayedHrs = 0;
+          evt.lastRelayed = evt.lastRelayed.add(const Duration(minutes: 5));
+        }
+        evt.errorMessage =
+            "Unable to deliver event. Reason:\n\n```html\n$resp\n```\n\n------\nDelayed event by $delayedHrs hours to avoid flooding contact.\n :alarm_clock: ${DateTime.now().toIso8601String()}";
+        eventBox.put(evt);
       }
       if (resp == null) {
         print("null - returning");
-        return "Unable to deliver: $e";
       }
+      // prefs.setString(
+      //   "lastLog",
+      //   "${prefs.getString("lastLog")}\nEvent: ${const JsonEncoder.withIndent('    ').convert(evt.json)}\nE: $e",
+      // );
+
+      return "Unable to deliver: $e";
     }
     dynamic respBody = {"ok": false, "message": resp.data};
     try {

@@ -55,6 +55,21 @@ class p3pMd extends StatelessWidget {
               ),
             );
           }
+        } else if (uri.scheme == "alert") {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text(uri.queryParameters["title"].toString()),
+                content: SizedBox(
+                    child: SingleChildScrollView(
+                  child: p3pMd(
+                      msgTxt: Uri.decodeQueryComponent(href.substring(
+                          href.indexOf("&body=") + "&body=".length))),
+                )),
+              );
+            },
+          );
         } else {
           launchUrl(uri, mode: LaunchMode.externalApplication);
         }

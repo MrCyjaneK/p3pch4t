@@ -470,7 +470,7 @@
     },
     {
       "id": "11:3368063336629472277",
-      "lastPropertyId": "8:8975221574307307500",
+      "lastPropertyId": "9:2349125508668484527",
       "name": "Event",
       "properties": [
         {
@@ -517,6 +517,11 @@
           "id": "8:8975221574307307500",
           "name": "relayTries",
           "type": 6
+        },
+        {
+          "id": "9:2349125508668484527",
+          "name": "errorMessage",
+          "type": 9
         }
       ],
       "relations": [

@@ -379,6 +379,10 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
     var msgTxtFull = utf8.decode(msg.data);
     var msgTxt = utf8.decode(msg.data);
     int limit = 6;
+    if (evt?.errorMessage != null) {
+      msgTxt =
+          "[:warning: ` Fatal delivery error!`](alert:?title=Unable%20to%20deliver%20event.&body=${Uri.encodeQueryComponent(evt!.errorMessage!)})\n\n+$msgTxt";
+    }
     if (msg.originName != null) {
       limit += 2;
       msgTxt =

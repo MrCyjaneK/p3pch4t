@@ -35,6 +35,8 @@ class Event {
   @Property(type: PropertyType.date)
   DateTime lastRelayed = DateTime.now();
 
+  String? errorMessage;
+
   int relayTries = 0;
 
   @Transient()
