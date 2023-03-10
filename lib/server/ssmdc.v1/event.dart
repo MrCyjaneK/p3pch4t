@@ -78,7 +78,6 @@ Future<Response> ssmdcv1HandleIntroductionV1(
   ssmdcv1AddUser(group, u, req);
   final evt = await Event.newSsmdcv1Introduction(u, group);
   evt.id = u.queueSendEvent(evt);
-  u.sendEvent(evt);
   return json({
     "ok": true,
   });

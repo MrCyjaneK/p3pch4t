@@ -80,7 +80,7 @@
     },
     {
       "id": "3:7095741913934992263",
-      "lastPropertyId": "19:2543184376158918520",
+      "lastPropertyId": "20:4730660991588548162",
       "name": "User",
       "properties": [
         {
@@ -173,6 +173,11 @@
           "id": "19:2543184376158918520",
           "name": "notifyCustomTags",
           "type": 9
+        },
+        {
+          "id": "20:4730660991588548162",
+          "name": "supportedEvents",
+          "type": 30
         }
       ],
       "relations": []
@@ -531,10 +536,48 @@
           "targetId": "3:7095741913934992263"
         }
       ]
+    },
+    {
+      "id": "12:2628958118871811229",
+      "lastPropertyId": "5:2128570372952062046",
+      "name": "FileV2",
+      "properties": [
+        {
+          "id": "1:3087261486236289201",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:1990822375953690869",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:9032681478826952001",
+          "name": "fileUid",
+          "type": 9,
+          "flags": 2048,
+          "indexId": "10:7234111226317566039"
+        },
+        {
+          "id": "4:5647549760169188426",
+          "name": "parentFile",
+          "type": 9,
+          "flags": 2048,
+          "indexId": "11:8005658063343072839"
+        },
+        {
+          "id": "5:2128570372952062046",
+          "name": "contentBytes",
+          "type": 23
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "11:3368063336629472277",
-  "lastIndexId": "9:7933804631943945433",
+  "lastEntityId": "12:2628958118871811229",
+  "lastIndexId": "11:8005658063343072839",
   "lastRelationId": "3:4694689868631711303",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

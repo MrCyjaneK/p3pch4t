@@ -374,6 +374,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  flutter_expandable_fab:
+    dependency: "direct main"
+    description:
+      name: flutter_expandable_fab
+      sha256: ed67b77d05bfb1960e0c96f7dbc6cd64de04a9710188991149665781926069d4
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.7.0"
   flutter_lints:
     dependency: "direct dev"
     description:

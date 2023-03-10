@@ -269,7 +269,6 @@ class _ManageGroupPageState extends State<ManageGroupPage> {
                         group,
                       );
                       evt.id = intU.queueSendEvent(evt);
-                      intU.sendEvent(evt);
                     }
                   },
                   icon: const Icon(Icons.save),

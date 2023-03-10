@@ -132,74 +132,69 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       drawer: const AppDrawer(),
-      body: Column(
-        children: [
-          if (progress != null && progress! < 1)
-            Stack(
-              children: [
-                LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 22,
-                ),
-                if (progressLabel != null)
-                  SizedBox(
-                    height: 22,
-                    width: double.maxFinite,
-                    child: Center(
-                      child: Text(
-                        progressLabel!,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge!
-                            .copyWith(fontSize: 13),
-                      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8),
+        child: ListView.builder(
+          shrinkWrap: false,
+          itemCount: uList.length + 1,
+          itemBuilder: (context, notIndex) {
+            if (notIndex == 0) {
+              if (progress != null && progress! < 1) {
+                return Stack(
+                  children: [
+                    LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 22,
                     ),
-                  ),
-              ],
-            ),
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                children: [
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: uList.length,
-                    itemBuilder: (context, index) {
-                      Message? msg = messageBox
-                          .query(Message_.userId.equals(uList[index].id))
-                          .order(Message_.id, flags: Order.descending)
-                          .build()
-                          .findFirst();
-                      return Card(
-                        child: ListTile(
-                          onTap: () {
-                            uList[index] = userBox.get(uList[index].id)!;
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return ChatScreenPage(u: uList[index]);
-                                },
-                              ),
-                            );
-                          },
-                          title: Text(uList[index].name),
-                          subtitle: msg == null
-                              ? null
-                              : Text(
-                                  utf8.decode(msg.data),
-                                  maxLines: 2,
-                                ),
+                    if (progressLabel != null)
+                      SizedBox(
+                        height: 22,
+                        width: double.maxFinite,
+                        child: Center(
+                          child: Text(
+                            progressLabel!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(fontSize: 13),
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 64),
-                ],
+                      ),
+                  ],
+                );
+              } else {
+                return const Text("");
+              }
+            }
+            final index = notIndex - 1;
+            Message? msg = messageBox
+                .query(Message_.userId.equals(uList[index].id))
+                .order(Message_.id, flags: Order.descending)
+                .build()
+                .findFirst();
+            return Card(
+              child: ListTile(
+                onTap: () {
+                  uList[index] = userBox.get(uList[index].id)!;
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return ChatScreenPage(u: uList[index]);
+                      },
+                    ),
+                  );
+                },
+                title: Text(uList[index].name),
+                subtitle: msg == null
+                    ? null
+                    : Text(
+                        utf8.decode(msg.data),
+                        maxLines: 2,
+                      ),
               ),
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {

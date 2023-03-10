@@ -229,7 +229,7 @@ Future<List<int>> doEventTasks() async {
         statProcessed++;
         if (!(await event.trySend(connstringSkipList))) {
           for (var elm in event.destinations) {
-            connstringSkipList.add(elm.connstring);
+            // connstringSkipList.add(elm.connstring);
           }
         }
       }

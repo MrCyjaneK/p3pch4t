@@ -6,7 +6,6 @@ import 'package:p3pch4t/helpers/themes.dart';
 import 'package:p3pch4t/objectbox.g.dart';
 import 'package:p3pch4t/prefs.dart';
 import 'package:p3pch4t/server/p3pmd.dart';
-import 'package:p3pch4t/usercalendarpage.dart';
 import 'package:p3pch4t/widgets/qr.dart';
 import 'package:select_dialog/select_dialog.dart';
 
@@ -230,19 +229,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) {
-                return UserCalendarPage(u: u);
-              },
-            ),
-          );
-        },
-        icon: const Icon(Icons.calendar_today),
-        label: const Text("Calendar"),
       ),
     );
   }

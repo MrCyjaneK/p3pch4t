@@ -41,6 +41,8 @@ class User {
   String connstring;
   String connmethod; // "i2p", ???
 
+  List<String>? supportedEvents;
+
   String bio = "";
 
   @Property(type: PropertyType.date)
@@ -99,16 +101,17 @@ class User {
       if (e is DioError) {
         resp = e.response;
 
-        late int delayedHrs;
-        if (!resp.toString().contains(r"<title>I2Pd HTTP proxy</title>")) {
-          evt.lastRelayed = evt.lastRelayed.add(const Duration(hours: 12));
-          delayedHrs = 12;
+        late String delayedMsg = "";
+        if (!resp.toString().contains(r"<title>I2Pd HTTP proxy</title>") &&
+            resp.toString() != "null") {
+          evt.lastRelayed = evt.lastRelayed.add(const Duration(minutes: 30));
+          delayedMsg = "30 minutes";
         } else {
-          delayedHrs = 0;
+          delayedMsg = "5 minutes";
           evt.lastRelayed = evt.lastRelayed.add(const Duration(minutes: 5));
         }
         evt.errorMessage =
-            "Unable to deliver event. Reason:\n\n```html\n$resp\n```\n\n------\nDelayed event by $delayedHrs hours to avoid flooding contact.\n :alarm_clock: ${DateTime.now().toIso8601String()}";
+            "Unable to deliver event. Reason:\n\n```html\n$resp\n```\n\n------\nDelayed event by $delayedMsg hours to avoid flooding contact.\n :alarm_clock: ${DateTime.now().toIso8601String()}";
         eventBox.put(evt);
       }
       if (resp == null) {
@@ -118,7 +121,6 @@ class User {
       //   "lastLog",
       //   "${prefs.getString("lastLog")}\nEvent: ${const JsonEncoder.withIndent('    ').convert(evt.json)}\nE: $e",
       // );
-
       return "Unable to deliver: $e";
     }
     dynamic respBody = {"ok": false, "message": resp.data};

@@ -20,6 +20,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:p3pch4t/profilepage.dart';
 import 'package:p3pch4t/server/p3pmd.dart';
 import 'package:p3pch4t/usercalendarpage.dart';
+import 'package:p3pch4t/userfilemanager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -109,6 +110,18 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) {
+                    return UserFileManager(u: u);
+                  },
+                ),
+              );
+            },
+            icon: const Icon(Icons.folder),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
                     return UserCalendarPage(u: u);
                   },
                 ),
@@ -192,90 +205,88 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
                     child: const Padding(
                       padding: EdgeInsets.all(16.0),
                       child: Text(
-                        "No PGP found! The contact is not yet added, once the contact become online you will be able to queue new messages",
+                        "No PGP found! The contact is not yet added. You can queue messages but it won't get delivered.",
                       ),
                     ),
-                  )
-                else
-                  Card(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: msgCtrl,
-                            minLines: 1,
-                            maxLines: 4,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Message',
-                            ),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(fontFamily: "monospace"),
+                  ),
+                Card(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: msgCtrl,
+                          minLines: 1,
+                          maxLines: 4,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Message',
                           ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(fontFamily: "monospace"),
                         ),
-                        if (msgCtrl.text.isEmpty)
-                          IconButton(
-                            onPressed: () async {
-                              if (!(await doPlatformFStask())) {
-                                return;
-                              }
-                              FilePickerResult? result =
-                                  await FilePicker.platform.pickFiles(
-                                allowMultiple: true,
+                      ),
+                      if (msgCtrl.text.isEmpty)
+                        IconButton(
+                          onPressed: () async {
+                            if (!(await doPlatformFStask())) {
+                              return;
+                            }
+                            FilePickerResult? result =
+                                await FilePicker.platform.pickFiles(
+                              allowMultiple: true,
+                            );
+                            if (result == null) return;
+                            for (var file in result.files) {
+                              var fevt = await FileEvt.createFromLocal(
+                                file.path!,
+                                "File upload",
                               );
-                              if (result == null) return;
-                              for (var file in result.files) {
-                                var fevt = await FileEvt.createFromLocal(
-                                  file.path!,
-                                  "File upload",
-                                );
-                                final evt = await Event.newFileMessage(fevt, u);
-                                u.queueSendEvent(evt);
-                                evt.trySend([]);
-                                fevt.msgId = messageBox.put(
-                                  Message(
-                                    eventUid: evt.uid,
-                                    userId: u.id,
-                                    type: "file.v1",
-                                    isTrusted: true,
-                                    isSelf: true,
-                                    nonce: evt.json["nonce"],
-                                    data:
-                                        utf8.encode(evt.jsonBody) as Uint8List,
-                                  ),
-                                );
-                                fileevtBox.put(fevt);
-                              }
-                            },
-                            icon: const Icon(Icons.attach_file),
-                          ),
-                        if (msgCtrl.text.isNotEmpty)
-                          IconButton(
-                            onPressed: () async {
-                              final evt = Event.newTextMessage(msgCtrl.text);
-                              evt.id = u.queueSendEvent(evt);
+                              final evt = await Event.newFileMessage(fevt, u);
+                              u.queueSendEvent(evt);
                               evt.trySend([]);
-                              messageBox.put(
+                              fevt.msgId = messageBox.put(
                                 Message(
                                   eventUid: evt.uid,
                                   userId: u.id,
-                                  type: "text.v1",
+                                  type: "file.v1",
                                   isTrusted: true,
                                   isSelf: true,
                                   nonce: evt.json["nonce"],
-                                  data: base64Decode(evt.json["data"]),
+                                  data: utf8.encode(evt.jsonBody) as Uint8List,
                                 ),
                               );
-                              msgCtrl.clear();
-                              loadMessages();
-                            },
-                            icon: const Icon(Icons.send),
-                          ),
-                      ],
-                    ),
+                              fileevtBox.put(fevt);
+                            }
+                          },
+                          icon: const Icon(Icons.attach_file),
+                        ),
+                      if (msgCtrl.text.isNotEmpty)
+                        IconButton(
+                          onPressed: () async {
+                            final evt = Event.newTextMessage(msgCtrl.text);
+                            evt.id = u.queueSendEvent(evt);
+                            evt.trySend([]);
+                            messageBox.put(
+                              Message(
+                                eventUid: evt.uid,
+                                userId: u.id,
+                                type: "text.v1",
+                                isTrusted: true,
+                                isSelf: true,
+                                nonce: evt.json["nonce"],
+                                data: base64Decode(evt.json["data"]),
+                              ),
+                            );
+                            msgCtrl.clear();
+                            loadMessages();
+                          },
+                          icon: const Icon(Icons.send),
+                        ),
+                    ],
                   ),
+                ),
                 if (u.publicKey == null)
                   SizedBox(
                     width: double.maxFinite,
@@ -496,7 +507,6 @@ class _ChatScreenPageState extends State<ChatScreenPage> {
                   msg.data = base64Decode(newEvt.json["data"]);
                   messageBox.put(msg);
                   setState(() {});
-                  u.sendEvent(newEvt);
                   Navigator.of(context).pop();
                 },
                 icon: const Icon(Icons.send),

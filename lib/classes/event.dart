@@ -4,6 +4,7 @@ import 'package:openpgp/openpgp.dart' as pgp;
 import 'package:p3pch4t/classes/fileevt.dart';
 import 'package:p3pch4t/classes/ssmdc.v1/groupconfig.dart';
 import 'package:p3pch4t/classes/user.dart';
+import 'package:p3pch4t/helpers/consts.dart';
 import 'package:p3pch4t/helpers/pgp.dart';
 import 'package:p3pch4t/objectbox.g.dart';
 // ignore: unnecessary_import
@@ -85,6 +86,7 @@ class Event {
 
   Stream<String> send(List<String> connstringSkipList) async* {
     for (var dest in destinations) {
+      if (dest.publicKey == null) continue;
       if (connstringSkipList.contains(dest.connstring)) continue;
       if (dest.connmethod == "i2p") {
         yield await dest.sendEvent(this);
@@ -178,6 +180,7 @@ class Event {
           "bio": group.about,
           "backgroundColor": group.rawBackgroundColor,
           "backgroundAsset": group.chatBackgroundAsset,
+          "supportedEvents": ssmdcv1SupportedEvents,
         },
       }),
     );
@@ -202,6 +205,7 @@ class Event {
           "bio": prefs.getString("bio"),
           "backgroundColor": u.rawBackgroundColor,
           "backgroundAsset": u.chatBackgroundAsset,
+          "supportedEvents": supportedEvents,
         },
       }),
     );

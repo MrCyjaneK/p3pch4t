@@ -282,7 +282,6 @@ Future<void> ssmdcv1ServiceRespond(
     privKey: group.groupPrivatePgp,
   );
   evt.id = u.queueSendEvent(evt);
-  u.sendEvent(evt);
 }
 
 Future<void> ssmdcv1ServiceRespondAll(

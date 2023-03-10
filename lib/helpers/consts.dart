@@ -91,3 +91,19 @@ host = 127.0.0.1
 port = 16424
 inport = 80
 keys = p3pch4t.dat""";
+
+const supportedEvents = [
+  "/core/selfpgp",
+  "introduce.v1",
+  "text.v1",
+  "file.v1",
+  "calendar.v1.sync.v1",
+];
+
+const ssmdcv1SupportedEvents = [
+  "/core/selfpgp",
+  "introduce.v1",
+  "text.v1",
+  "file.v1",
+  "calendar.v1.sync.v1",
+];
