@@ -34,9 +34,11 @@ Future<Response> handleIntroductionV1(Map<String, dynamic> req) async {
   u.publicKey = req["body"]["body"]["data"]["senderpgp"];
   u.rawBackgroundColor = req["body"]["body"]["data"]["backgroundColor"];
   u.chatBackgroundAsset = req["body"]["body"]["data"]["backgroundAsset"];
-  u.supportedEvents = req["body"]["body"]["data"]["supportedEvents"]
-      .join(",")
-      .split(","); // cast List<dynamic> to List<String>
+  try {
+    u.supportedEvents = req["body"]["body"]["data"]["supportedEvents"]
+        .join(",")
+        .split(","); // cast List<dynamic> to List<String>
+  } catch (e) {}
   userBox.put(u);
 
   return json({

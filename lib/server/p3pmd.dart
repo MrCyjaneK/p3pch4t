@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:markdown/markdown.dart' as md;
@@ -24,7 +26,13 @@ class p3pMd extends StatelessWidget {
       extensionSet: md.ExtensionSet.gitHubWeb,
       imageBuilder: (uri, title, alt) {
         // Images may lead to leaking of IP address without user interaction.
-        return Container();
+        if (uri.scheme == "data") {
+          return Image.memory(base64Decode(
+            uri.toString().substring(
+                uri.toString().indexOf(";base64,") + ";base64,".length),
+          ));
+        }
+        return Text("unsupported image format (${uri.scheme})");
       },
       onTapLink: (text, href, title) {
         print("text: $text href: $href title: $title");

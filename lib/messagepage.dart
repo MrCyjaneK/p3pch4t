@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:p3pch4t/classes/user.dart';
+import 'package:p3pch4t/server/p3pmd.dart';
 
 class MessagePage extends StatelessWidget {
   const MessagePage({
@@ -17,9 +17,10 @@ class MessagePage extends StatelessWidget {
       appBar: AppBar(title: const Text("x")),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: MarkdownBody(data: msgTxt),
-        ),
+            padding: const EdgeInsets.all(8),
+            child: p3pMd(
+              msgTxt: msgTxt,
+            )),
       ),
     );
   }
