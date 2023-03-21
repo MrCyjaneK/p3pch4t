@@ -1,7 +1,7 @@
 import 'package:objectbox/objectbox.dart';
 import 'package:p3pch4t/classes/event.dart';
 import 'package:p3pch4t/classes/user.dart';
-import 'package:p3pch4t/prefs.dart';
+import 'package:p3pch4t/helpers/prefs.dart';
 import 'package:random_string/random_string.dart';
 
 @Entity()

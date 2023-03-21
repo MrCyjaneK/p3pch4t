@@ -13,7 +13,7 @@ import 'package:p3pch4t/helpers/pgp.dart';
 import 'package:p3pch4t/objectbox.g.dart';
 // ignore: unnecessary_import
 import 'package:objectbox/objectbox.dart';
-import 'package:p3pch4t/prefs.dart';
+import 'package:p3pch4t/helpers/prefs.dart';
 
 @Entity()
 class SSMDCv1GroupConfig {
@@ -29,12 +29,10 @@ class SSMDCv1GroupConfig {
 
   String about = "This is group about stuff";
 
-  String welcomeMessage =
-      r"Welcome to **$groupname** `$username`! You are our `$usersCount` member!";
+  String welcomeMessage = r"Welcome to **$groupname** `$username`! You are our `$usersCount` member!";
   String joinMessage = r"`$username` have joined us!";
 
-  String byeMessage =
-      r"Goodbye $username! Make sure to remove the group from your chat list to avoid re-joining on introduce.v1";
+  String byeMessage = r"Goodbye $username! Make sure to remove the group from your chat list to avoid re-joining on introduce.v1";
   String leaveMessage = r"`$username` left the chat";
 
   bool showWelcomeMessage = true;
@@ -184,8 +182,7 @@ class SSMDCv1GroupConfig {
       final newCalendarModList = calendarModList;
       newCalendarModList.add(u.id);
       calendarModList = newCalendarModList;
-      final req =
-          Event.newTextMessage("${u.name}, you are now calendar admin!").json;
+      final req = Event.newTextMessage("${u.name}, you are now calendar admin!").json;
 
       req["origin"] = {
         "name": "$name (service)",
@@ -215,14 +212,12 @@ class SSMDCv1GroupConfig {
   late String groupPrivatePgp;
 
   int getPendingEvents() {
-    List<Event> groupEvents =
-        eventBox.query(Event_.privKey.equals(groupPrivatePgp)).build().find();
+    List<Event> groupEvents = eventBox.query(Event_.privKey.equals(groupPrivatePgp)).build().find();
     return groupEvents.length;
   }
 
   int getPendingEventsTries() {
-    List<Event> groupEvents =
-        eventBox.query(Event_.privKey.equals(groupPrivatePgp)).build().find();
+    List<Event> groupEvents = eventBox.query(Event_.privKey.equals(groupPrivatePgp)).build().find();
     int toret = 0;
     for (var element in groupEvents) {
       toret += element.relayTries;

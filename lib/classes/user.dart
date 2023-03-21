@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:i2p_flutter/i2p_flutter.dart';
-import 'package:objectbox/objectbox.dart';
 import 'package:openpgp/openpgp.dart' as pgp;
 import 'package:p3pch4t/classes/event.dart';
 import 'package:p3pch4t/helpers/pgp.dart';
-import 'package:p3pch4t/prefs.dart';
+import 'package:p3pch4t/helpers/prefs.dart';
+import 'package:p3pch4t/objectbox.g.dart';
 import 'package:random_string/random_string.dart';
 
 @Entity()
@@ -92,9 +92,7 @@ class User {
       resp = await i2pFlutterPlugin.dio().post(
             "http://$connstring/core/event",
             data: encBody,
-            options: Options(
-                responseType: ResponseType.plain,
-                receiveDataWhenStatusError: true),
+            options: Options(responseType: ResponseType.plain, receiveDataWhenStatusError: true),
           );
     } catch (e) {
       print(e);
@@ -102,8 +100,7 @@ class User {
         resp = e.response;
 
         late String delayedMsg = "";
-        if (!resp.toString().contains(r"<title>I2Pd HTTP proxy</title>") &&
-            resp.toString() != "null") {
+        if (!resp.toString().contains(r"<title>I2Pd HTTP proxy</title>") && resp.toString() != "null") {
           evt.lastRelayed = evt.lastRelayed.add(const Duration(minutes: 30));
           delayedMsg = "30 minutes";
         } else {
@@ -190,5 +187,14 @@ class User {
   int queueSendEvent(Event evt) {
     evt.destinations.add(this);
     return eventBox.put(evt);
+  }
+}
+
+Future<void> introduceNewUsers() async {
+  List<User> ul = userBox.query(User_.isIntroduced.equals(false)).build().find();
+  for (var u in ul) {
+    u.isIntroduced = true;
+    u.introduce();
+    userBox.put(u);
   }
 }

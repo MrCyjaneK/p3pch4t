@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:objectbox/objectbox.dart';
 import 'package:openpgp/openpgp.dart' as pgp;
 import 'package:p3pch4t/helpers/pgp.dart';
-import 'package:p3pch4t/prefs.dart';
+import 'package:p3pch4t/helpers/prefs.dart';
 
 @Entity()
 class PublicKey {

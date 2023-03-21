@@ -5,7 +5,7 @@ import 'package:objectbox/objectbox.dart';
 import 'package:i2p_flutter/i2p_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:p3pch4t/classes/fileevt.dart';
-import 'package:p3pch4t/prefs.dart';
+import 'package:p3pch4t/helpers/prefs.dart';
 
 @Entity()
 class DownloadItem {
@@ -66,8 +66,7 @@ class DownloadItem {
     late Response resp;
     try {
       resp = await i2pFlutterPlugin.dio().get(
-            fileEvt.endpoint!.replaceAll(r"$start", "$currentSize").replaceAll(
-                r"$end", "${min(currentSize + size, fileEvt.filesize)}"),
+            fileEvt.endpoint!.replaceAll(r"$start", "$currentSize").replaceAll(r"$end", "${min(currentSize + size, fileEvt.filesize)}"),
             options: Options(responseType: ResponseType.bytes),
           );
     } catch (e) {
@@ -79,4 +78,22 @@ class DownloadItem {
   }
 }
 
-// !warn,!error,!Service already
+bool isDownloadInProgress = false;
+
+Future<void> downloadParts() async {
+  if (isDownloadInProgress) return;
+  isDownloadInProgress = true;
+  try {
+    final items = downloadItemBox.getAll();
+    for (var di in items) {
+      if (di.isDownloaded) continue;
+      await di.downloadPart(1024 * 1024 * 16);
+    }
+    isDownloadInProgress = false;
+  } catch (e) {
+    isDownloadInProgress = false;
+    return;
+  }
+  isDownloadInProgress = false;
+  return;
+}

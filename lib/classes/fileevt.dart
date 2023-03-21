@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:p3pch4t/objectbox.g.dart';
 import 'package:objectbox/objectbox.dart';
-import 'package:p3pch4t/prefs.dart';
+import 'package:p3pch4t/helpers/prefs.dart';
 import 'package:random_string/random_string.dart';
 import 'package:path/path.dart' as p;
 import 'package:async/async.dart';

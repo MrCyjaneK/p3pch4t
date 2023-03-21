@@ -1,5 +1,5 @@
 import 'package:openpgp/openpgp.dart';
-import 'package:p3pch4t/prefs.dart';
+import 'package:p3pch4t/helpers/prefs.dart';
 
 const passpharse = "null";
 
