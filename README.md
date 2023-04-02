@@ -50,5 +50,5 @@ If you want to help with code: go ahead, clone the repository and mess around (y
 That being said, this project is still in it's early version. If you have any questions feel free to contact me:
 
  - p3p dm: `i2p://llxkslo3amhojaebvtl5idkc72kv4mym5zx7lwojhqezxefyjota.b32.i2p`
- - p3p group: `i2p://5no5y2sf7z4kc5plqedwodfcv3saiw5bbfezxpl6k2i5gvwnktbq.b32.i2p/ssmdc.v1/party` (hosted on a redmi 7a!)
+ - p3p group: `i2p://llxkslo3amhojaebvtl5idkc72kv4mym5zx7lwojhqezxefyjota.b32.i2p/ssmdc.v1/dev` (hosted on a redmi 7a!)
  - XMPP: `x@stulpy.sk`
