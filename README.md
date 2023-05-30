@@ -2,6 +2,8 @@
 
 > Because we need yet another IM
 
+> **NOTE:** This project is currently unmaintained. It is working, basics and some more advanced features are done but it requires a rewrite - as it is just a PoC. Because living on this planet isn't free and monetizing project that's fully open source wouldn't turn out well I had to pause the development. I will however resume the development once I get some funding for this app or get some more free time.
+
 # About
 
 **P3p ch4t** - Ensures anonymity by using i2p, and provides privacy with PGP.
