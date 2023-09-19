@@ -2,7 +2,10 @@
 
 > Because we need yet another IM
 
-> **NOTE:** This project is currently unmaintained. It is working, basics and some more advanced features are done but it requires a rewrite - as it is just a PoC. Because living on this planet isn't free and monetizing project that's fully open source wouldn't turn out well I had to pause the development. I will however resume the development once I get some funding for this app or get some more free time.
+
+> ~~**NOTE:** This project is currently unmaintained. It is working, basics and some more advanced features are done but it requires a rewrite - as it is just a PoC. Because living on this planet isn't free and monetizing project that's fully open source wouldn't turn out well I had to pause the development. I will however resume the development once I get some funding for this app or get some more free time.~~
+>
+> **NOTE:** This project is being developed under @p3pch4t org. Full rewrite is being currently done, with different technologies and same key features.
 
 # About
 
